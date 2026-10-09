@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fazer meu site · Brasa Digital</title>
+<meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,40 +17,94 @@
   *{box-sizing:border-box;}
   body{margin:0; background:var(--osso); color:var(--carvao); font-family:'Work Sans',Arial,sans-serif; line-height:1.55;}
   h1,h2,h3{font-family:'Zilla Slab',serif; font-weight:700; margin:0 0 10px;}
+  :focus-visible{outline:2px solid var(--brasa); outline-offset:3px;}
   .nav{display:flex; justify-content:space-between; align-items:center; padding:18px 32px; border-bottom:1px solid var(--osso-suave);}
   .marca{font-family:'Zilla Slab',serif; font-weight:700; font-size:17px; letter-spacing:.04em; text-transform:uppercase;}
   .marca span{color:var(--brasa);}
-  .wrap{max-width:560px; margin:0 auto; padding:56px 24px 96px;}
-  .progresso{display:flex; gap:6px; margin-bottom:28px;}
+  .wrap{max-width:600px; margin:0 auto; padding:48px 24px 96px;}
+
+  .progresso{display:flex; gap:6px; margin-bottom:10px;}
   .progresso span{height:3px; flex:1; background:var(--osso-suave); border-radius:2px;}
   .progresso span.ativo{background:var(--brasa);}
+  .parte{font-size:13px; color:var(--fumaca); margin:0 0 26px;}
+
   .tela{display:none;}
   .tela.ativa{display:block;}
-  .rotulo{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--brasa); font-weight:600; margin-bottom:10px; display:block;}
+  .tela h2{font-size:26px; line-height:1.2; outline:none;}
+  .intro{color:var(--fumaca); font-size:15px; margin:0 0 24px; max-width:52ch;}
+
+  .grupo{margin-bottom:22px; border:0; padding:0; min-width:0;}
+  .grupo[hidden]{display:none;}
+  .grupo > label, .grupo > legend{display:block; font-size:14.5px; font-weight:600; color:var(--carvao); margin-bottom:6px; padding:0;}
+  .grupo .opc{font-weight:400; color:var(--fumaca);}
+  .ajuda{font-size:13px; color:var(--fumaca); margin:0 0 8px; max-width:56ch;}
+  .erro-campo{font-size:13px; color:#B3290C; font-weight:500; margin:6px 0 0;}
+  .grupo.invalido input[type=text], .grupo.invalido input[type=email], .grupo.invalido input[type=tel],
+  .grupo.invalido input[type=date], .grupo.invalido textarea{border-color:#B3290C;}
+  .grupo.invalido .opcao{border-color:#E7B8AB;}
+
+  input[type=text], input[type=email], input[type=tel], input[type=date], textarea{
+    width:100%; padding:13px 14px; border:1px solid var(--osso-suave); border-radius:3px;
+    font-family:inherit; font-size:15px; background:#fff; color:var(--carvao);
+  }
+  textarea{min-height:104px; resize:vertical;}
+
   .opcao{
-    display:block; width:100%; text-align:left; padding:15px 18px; margin-bottom:10px;
+    display:flex; align-items:flex-start; gap:12px; width:100%; padding:14px 16px; margin-bottom:8px;
     border:1px solid var(--osso-suave); border-radius:3px; background:#fff; font-size:14.5px;
-    color:var(--carvao); cursor:pointer; font-family:inherit;
+    color:var(--carvao); cursor:pointer; line-height:1.4;
   }
   .opcao:hover{border-color:var(--brasa);}
-  .opcao.selecionada{border-color:var(--brasa); background:#FBEDE7;}
-  input[type=text], input[type=email], input[type=date], textarea{
-    width:100%; padding:13px 14px; border:1px solid var(--osso-suave); border-radius:3px;
-    font-family:inherit; font-size:14.5px; margin-bottom:14px; background:#fff; color:var(--carvao);
-  }
-  textarea{min-height:90px; resize:vertical;}
-  label.campo{display:block; font-size:13px; color:var(--fumaca); margin-bottom:6px;}
+  .opcao input{margin:2px 0 0; accent-color:var(--brasa); flex:none; width:16px; height:16px;}
+  .opcao:has(input:checked){border-color:var(--brasa); background:#FBEDE7;}
+  .opcao:has(input:focus-visible){outline:2px solid var(--brasa); outline-offset:2px;}
+  .opcao:has(input:disabled){opacity:.5; cursor:not-allowed;}
+  .contador{font-size:12.5px; color:var(--fumaca); margin-top:2px;}
+
+  .item{border:1px solid var(--osso-suave); background:#FBF8F2; border-radius:3px; padding:16px 16px 4px; margin-bottom:12px;}
+  .item > legend{font-family:'Zilla Slab',serif; font-weight:700; font-size:16px; padding:0 6px; margin-left:-6px;}
+  .item .grupo{margin-bottom:16px;}
+  .item-topo{display:flex; justify-content:flex-end; margin:-6px 0 6px;}
+
   .btn{
     display:inline-flex; align-items:center; gap:8px; padding:13px 26px; background:var(--brasa);
-    color:var(--osso); border:none; border-radius:2px; font-size:14px; font-weight:600; cursor:pointer;
+    color:var(--osso); border:none; border-radius:2px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;
   }
   .btn:hover{background:#B33813;}
   .btn:disabled{opacity:.5; cursor:not-allowed;}
   .btn-voltar{background:transparent; color:var(--fumaca); border:1px solid var(--osso-suave); margin-right:10px;}
-  .rodape-nav{display:flex; margin-top:8px;}
+  .btn-voltar:hover{background:var(--osso-suave);}
+  .btn-leve{background:transparent; color:var(--carvao); border:1px dashed var(--fumaca); padding:10px 16px; font-weight:500;}
+  .btn-leve:hover{background:#fff;}
+  .btn-texto{background:none; border:none; color:var(--brasa); font-weight:600; font-size:13px; cursor:pointer; padding:4px 0; font-family:inherit;}
+  .btn-texto:hover{text-decoration:underline;}
+  .rodape-nav{display:flex; margin-top:12px;}
   .aviso{font-size:13px; color:var(--fumaca); margin-top:6px;}
-  .sucesso{text-align:center; padding:40px 0;}
-  .erro{color:var(--brasa); font-size:13px; margin-top:8px;}
+  .erro{color:#B3290C; font-size:14px; font-weight:500; margin-top:14px;}
+
+  .retomar{background:#fff; border:1px solid var(--ouro); border-radius:3px; padding:16px 18px; margin-bottom:26px; font-size:14.5px;}
+  .retomar p{margin:0 0 12px;}
+  .retomar .btn{padding:10px 18px;}
+
+  .resumo-bloco{background:#fff; border:1px solid var(--osso-suave); border-radius:3px; padding:16px 18px; margin-bottom:12px;}
+  .resumo-bloco header{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .resumo-bloco h3{font-size:16px; margin:0;}
+  .resumo-bloco dl{margin:0; display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr); gap:6px 16px; font-size:13.5px;}
+  .resumo-bloco dt{color:var(--fumaca);}
+  .resumo-bloco dd{margin:0; overflow-wrap:anywhere; white-space:pre-wrap;}
+  .resumo-bloco dd.vazio{color:#7A6E62; font-style:italic;}
+
+  .sucesso{text-align:left; padding:24px 0;}
+  .sucesso ol{padding-left:20px; color:var(--fumaca);}
+  .sucesso li{margin-bottom:8px;}
+
+  @media(max-width:520px){
+    .wrap{padding:32px 18px 72px;}
+    .nav{padding:16px 18px;}
+    .resumo-bloco dl{grid-template-columns:1fr; gap:2px;}
+    .resumo-bloco dd{margin-bottom:8px;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
 </style>
 </head>
 <body>
@@ -58,285 +113,884 @@
   <div class="marca">Brasa<span>.</span>Digital</div>
 </div>
 
-<div class="wrap">
-  <div class="progresso" id="barraProgresso"></div>
-  <form id="formPedido">
-
-    <!-- TELA 1: classificação -->
-    <div class="tela ativa" data-tela="classificacao">
-      <span class="rotulo">Pergunta 1</span>
-      <h2>O que você precisa que esse site faça?</h2>
-      <button type="button" class="opcao" data-campo="tier" data-valor="presenca_rapida">Uma página só, para vender um produto ou divulgar um serviço</button>
-      <button type="button" class="opcao" data-campo="tier" data-valor="site_completo">Um site com várias páginas contando quem eu sou e o que faço</button>
-      <button type="button" class="opcao" data-campo="tier" data-valor="sob_medida">Uma loja para vender vários produtos online</button>
-    </div>
-
-    <!-- TELA 2: segmento -->
-    <div class="tela" data-tela="segmento">
-      <span class="rotulo">Sobre o seu negócio</span>
-      <h2>Qual o segmento do seu negócio?</h2>
-      <button type="button" class="opcao" data-campo="segmento" data-valor="alimentacao">Alimentação</button>
-      <button type="button" class="opcao" data-campo="segmento" data-valor="beleza">Beleza e estética</button>
-      <button type="button" class="opcao" data-campo="segmento" data-valor="saude">Saúde e bem-estar</button>
-      <button type="button" class="opcao" data-campo="segmento" data-valor="moda">Moda e acessórios</button>
-      <button type="button" class="opcao" data-campo="segmento" data-valor="servicos">Serviços profissionais</button>
-      <button type="button" class="opcao" data-campo="segmento" data-valor="outro">Outro</button>
-    </div>
-
-    <!-- TELA 3: fotos -->
-    <div class="tela" data-tela="fotos">
-      <span class="rotulo">Material</span>
-      <h2>Você tem fotos do seu negócio para usar no site?</h2>
-      <button type="button" class="opcao" data-campo="tem_fotos" data-valor="sim">Sim, vou enviar por WhatsApp depois</button>
-      <button type="button" class="opcao" data-campo="tem_fotos" data-valor="nao">Não, pode usar imagens de banco do meu segmento</button>
-    </div>
-
-    <!-- TELA 4: logo -->
-    <div class="tela" data-tela="logo">
-      <span class="rotulo">Material</span>
-      <h2>Você já tem uma logo pronta?</h2>
-      <button type="button" class="opcao" data-campo="tem_logo" data-valor="sim">Sim, vou enviar por WhatsApp depois</button>
-      <button type="button" class="opcao" data-campo="tem_logo" data-valor="nao">Não tenho, quero uma versão tipográfica incluída</button>
-      <button type="button" class="opcao" data-campo="tem_logo" data-valor="refazer">Tenho, mas quero refazer</button>
-    </div>
-
-    <!-- TELA 5: contato público do negócio -->
-    <div class="tela" data-tela="contato_negocio">
-      <span class="rotulo">Contato público</span>
-      <h2>Como o cliente final vai falar com o seu negócio?</h2>
-      <label class="campo">WhatsApp</label>
-      <input type="text" id="campo_whatsapp_negocio" placeholder="(11) 91234-5678">
-      <label class="campo">Endereço (opcional)</label>
-      <input type="text" id="campo_endereco">
-      <label class="campo">Horário de funcionamento</label>
-      <input type="text" id="campo_horario" placeholder="Seg a sex, 9h às 18h">
-    </div>
-
-    <!-- TELA 6: domínio -->
-    <div class="tela" data-tela="dominio">
-      <span class="rotulo">Endereço do site</span>
-      <h2>Você já tem um domínio?</h2>
-      <button type="button" class="opcao" data-campo="tem_dominio" data-valor="sim">Sim, já tenho</button>
-      <button type="button" class="opcao" data-campo="tem_dominio" data-valor="nao">Não, preciso de ajuda para registrar</button>
-      <label class="campo" style="margin-top:12px;">Qual domínio (o que já tem, ou o que gostaria)?</label>
-      <input type="text" id="campo_dominio" placeholder="seunegocio.com.br">
-      <p class="aviso">Verificamos a disponibilidade manualmente por enquanto e confirmamos com você por WhatsApp.</p>
-    </div>
-
-    <!-- TELA 7: dados do negócio e objetivo -->
-    <div class="tela" data-tela="dados_negocio">
-      <span class="rotulo">Sobre o pedido</span>
-      <h2>Conte um pouco sobre o que você precisa</h2>
-      <label class="campo">Nome do negócio</label>
-      <input type="text" id="campo_nome_negocio" required>
-      <label class="campo">Descreva em poucas linhas o que você faz e o objetivo do site</label>
-      <textarea id="campo_descricao" required></textarea>
-    </div>
-
-    <!-- TELA 8: estilo visual -->
-    <div class="tela" data-tela="estilo">
-      <span class="rotulo">Estilo</span>
-      <h2>Qual estilo visual combina com o seu negócio?</h2>
-      <button type="button" class="opcao" data-campo="estilo" data-valor="vitrine">Vitrine — editorial, elegante</button>
-      <button type="button" class="opcao" data-campo="estilo" data-valor="sereno">Sereno — calmo, clínico</button>
-      <button type="button" class="opcao" data-campo="estilo" data-valor="robusto">Robusto — técnico, industrial</button>
-      <button type="button" class="opcao" data-campo="estilo" data-valor="traco">Traço — criativo, ousado</button>
-      <button type="button" class="opcao" data-campo="estilo" data-valor="aconchego">Aconchego — caloroso, artesanal</button>
-      <button type="button" class="opcao" data-campo="estilo" data-valor="estrutura">Estrutura — sóbrio, confiante</button>
-    </div>
-
-    <!-- TELA 9: textos -->
-    <div class="tela" data-tela="textos">
-      <span class="rotulo">Textos do site</span>
-      <h2>Você prefere escrever os textos, ou quer que a gente escreva pra você?</h2>
-      <button type="button" class="opcao" data-campo="quem_escreve" data-valor="cliente">Eu mesmo escrevo</button>
-      <button type="button" class="opcao" data-campo="quem_escreve" data-valor="brasa">Vocês escrevem pra mim</button>
-    </div>
-
-    <!-- TELA 10: contato do pedido -->
-    <div class="tela" data-tela="contato_pedido">
-      <span class="rotulo">Último passo</span>
-      <h2>Seu contato, pra combinarmos os próximos passos</h2>
-      <label class="campo">Seu nome</label>
-      <input type="text" id="campo_seu_nome" required>
-      <label class="campo">WhatsApp</label>
-      <input type="text" id="campo_seu_whatsapp" required>
-      <label class="campo">E-mail (opcional)</label>
-      <input type="email" id="campo_seu_email">
-    </div>
-
-    <!-- TELA FINAL: sucesso -->
-    <div class="tela" data-tela="sucesso">
-      <div class="sucesso">
-        <h2>Pedido recebido!</h2>
-        <p>Em até 24h úteis você recebe as instruções de pagamento do sinal pelo WhatsApp.</p>
-      </div>
-    </div>
-
+<main class="wrap">
+  <div id="avisoRascunho"></div>
+  <div class="progresso" id="barraProgresso" aria-hidden="true"></div>
+  <p class="parte" id="rotuloParte"></p>
+  <form id="formPedido" novalidate>
+    <div id="palco"></div>
     <div class="rodape-nav" id="navBotoes">
       <button type="button" class="btn btn-voltar" id="btnVoltar">Voltar</button>
-      <button type="button" class="btn" id="btnAvancar">Continuar</button>
+      <button type="submit" class="btn" id="btnAvancar">Continuar</button>
     </div>
-    <p class="erro" id="msgErro"></p>
+    <p class="erro" id="msgErro" role="alert" aria-live="assertive"></p>
   </form>
-</div>
+</main>
 
 <script>
 const SUPABASE_URL = "https://rwawocydclpumzdxasvn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3YXdvY3lkY2xwdW16ZHhhc3ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0NzcwNzIsImV4cCI6MjEwMzA1MzA3Mn0.VwDn24W7NK9qbyBUGCaiwZAi0EakvItHldLTuIWF2AM";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const dados = {};
+const VERSAO_FORMULARIO = 2;
+const CHAVE_RASCUNHO = "brasa_formulario_v2";
 
-// ordem das telas; "sob_medida" pula direto pro contato depois do segmento (pré-briefing simplificado, tratado manualmente)
-function ordemTelas(){
-  const base = ["classificacao","segmento","fotos","logo","contato_negocio","dominio","dados_negocio"];
-  if(dados.tier === "sob_medida"){
-    return ["classificacao","segmento","dados_negocio","contato_pedido","sucesso"];
+/* ============================================================
+   MAPA DE CHAVES (usado também pelo painel admin ao montar o prompt)
+   Todas as respostas vão em formulario_respostas.respostas (JSON).
+   Para campos de escolha, o texto mostrado ao cliente vai em respostas.rotulos[campo].
+   ============================================================ */
+
+const PLANOS = { PR: "presenca_rapida", SC: "site_completo", SM: "sob_medida" };
+const TODOS = [PLANOS.PR, PLANOS.SC, PLANOS.SM];
+const SEM_SM = [PLANOS.PR, PLANOS.SC];
+
+const PARTES = {
+  pedido: "Seu pedido",
+  negocio: "Seu negócio",
+  site: "O que o site precisa ter",
+  contato: "Contato e redes",
+  visual: "Visual e material",
+  textos: "Textos e recursos",
+  publicacao: "Publicação",
+  fechamento: "Fechamento"
+};
+
+const e = (v) => v === undefined || v === null ? "" : String(v);
+const ehPR = (d) => d.tier === PLANOS.PR;
+const ehSC = (d) => d.tier === PLANOS.SC;
+const ehSM = (d) => d.tier === PLANOS.SM;
+const SIM_NAO = [{v:"sim", l:"Sim"}, {v:"nao", l:"Não"}];
+const SIM_NAO_DECIDIR = [{v:"sim", l:"Sim"}, {v:"nao", l:"Não"}, {v:"decidir", l:"Vocês decidem o que for melhor"}];
+const temTexto = (v) => e(v).trim().length > 0;
+
+/* ============================================================
+   TELAS
+   tipos de campo: opcao | multi | texto | longo | email | tel | url | data | lista | confirmar
+   obrigatorio: true | false | (dados) => boolean
+   mostrarSe: (dados) => boolean
+   ============================================================ */
+const TELAS = [
+  {
+    id:"escopo", parte:"pedido", planos:TODOS,
+    titulo:"O que você precisa que esse site faça?",
+    intro:"Responda com calma. Quanto mais detalhe, menos idas e vindas e mais rápido o seu site fica pronto. O que não se aplicar ao seu caso, é só pular. Suas respostas ficam salvas neste aparelho, então você pode continuar depois.",
+    campos:[
+      { id:"tier", tipo:"opcao", rotulo:"Escolha a opção que mais se parece com o seu caso", obrigatorio:true, opcoes:[
+        {v:PLANOS.PR, l:"Uma página só, para vender um produto ou divulgar um serviço"},
+        {v:PLANOS.SC, l:"Um site com várias páginas contando quem eu sou e o que faço"},
+        {v:PLANOS.SM, l:"Uma loja para vender vários produtos online"}
+      ]}
+    ]
+  },
+  {
+    id:"negocio", parte:"negocio", planos:TODOS,
+    titulo:"Qual é o seu negócio?",
+    campos:[
+      { id:"nome_negocio", tipo:"texto", rotulo:"Nome do negócio", obrigatorio:true, maxlen:80, autocomplete:"organization", ajuda:"Do jeito que deve aparecer escrito no site, com maiúsculas, acentos e pontuação." },
+      { id:"segmento", tipo:"opcao", rotulo:"Segmento", obrigatorio:true, opcoes:[
+        {v:"alimentacao", l:"Alimentação"}, {v:"beleza", l:"Beleza e estética"}, {v:"saude", l:"Saúde e bem-estar"},
+        {v:"moda", l:"Moda e acessórios"}, {v:"servicos", l:"Serviços profissionais"}, {v:"educacao", l:"Educação e cursos"},
+        {v:"casa", l:"Casa, construção e reforma"}, {v:"automotivo", l:"Automotivo"}, {v:"pet", l:"Pet"}, {v:"outro", l:"Outro"}
+      ]},
+      { id:"segmento_outro", tipo:"texto", rotulo:"Qual é o segmento?", obrigatorio:true, maxlen:80, mostrarSe:(d)=>d.segmento==="outro", placeholder:"Ex.: fotografia de casamentos" },
+      { id:"frase_negocio", tipo:"texto", rotulo:"Em uma frase, o que o seu negócio faz?", obrigatorio:true, maxlen:160, placeholder:"Ex.: Fazemos bolos personalizados para festas em Santo André.", ajuda:"Imagine explicar para alguém em 10 segundos. Essa frase vira a base do título do site." },
+      { id:"tempo_atuacao", tipo:"opcao", rotulo:"Há quanto tempo o negócio existe?", obrigatorio:false, opcoes:[
+        {v:"comecando", l:"Estou começando agora"}, {v:"1a3", l:"De 1 a 3 anos"}, {v:"3a10", l:"De 3 a 10 anos"}, {v:"mais10", l:"Mais de 10 anos"}
+      ]}
+    ]
+  },
+  {
+    id:"local", parte:"negocio", planos:TODOS,
+    titulo:"Onde você atende?",
+    campos:[
+      { id:"cidade_uf", tipo:"texto", rotulo:"Cidade e estado do negócio", obrigatorio:true, maxlen:80, placeholder:"São Caetano do Sul, SP", autocomplete:"address-level2" },
+      { id:"area_atendimento", tipo:"opcao", rotulo:"Até onde você atende?", obrigatorio:true, opcoes:[
+        {v:"cidade", l:"Só na minha cidade"}, {v:"regiao", l:"Na minha cidade e região"}, {v:"brasil", l:"Todo o Brasil"}, {v:"online", l:"Só online, de qualquer lugar"}
+      ]},
+      { id:"ponto_fisico", tipo:"opcao", rotulo:"Seus clientes vão até um endereço físico (loja, consultório, oficina)?", obrigatorio:true, opcoes:SIM_NAO }
+    ]
+  },
+  {
+    id:"descricao", parte:"negocio", planos:TODOS,
+    titulo:"Conte o que você faz",
+    campos:[
+      { id:"descricao", tipo:"longo", rotulo:"Descreva o que o seu negócio faz e como funciona", obrigatorio:true, min:40, maxlen:1500,
+        ajuda:"O que você vende ou presta, como é o atendimento do primeiro contato até a entrega, e o que o cliente recebe no final." },
+      { id:"historia", tipo:"longo", rotulo:"Como o negócio começou e quem está por trás dele?", obrigatorio:false, maxlen:1200,
+        ajuda:"Se quiser, conte a história, o motivo de ter começado e quem atende o cliente. Isso dá rosto ao site." }
+    ]
+  },
+  {
+    id:"publico", parte:"negocio", planos:TODOS,
+    titulo:"Para quem o site fala?",
+    campos:[
+      { id:"publico_ideal", tipo:"longo", rotulo:"Quem é o seu cliente ideal?", obrigatorio:true, maxlen:600,
+        ajuda:"Idade aproximada, perfil, onde mora, como costuma chegar até você. Ex.: mulheres de 25 a 45 anos, moradoras do ABC, que descobrem pelo Instagram." },
+      { id:"problema_resolvido", tipo:"longo", rotulo:"Que problema ou desejo o cliente tem quando procura você?", obrigatorio:true, maxlen:600,
+        ajuda:"Ex.: precisa de um bolo bonito e no prazo, sem correria na véspera." },
+      { id:"diferencial_1", tipo:"texto", rotulo:"Por que escolher você, e não outro? Primeiro motivo", obrigatorio:true, maxlen:200, placeholder:"Ex.: entrega no mesmo dia" },
+      { id:"diferencial_2", tipo:"texto", rotulo:"Segundo motivo", obrigatorio:false, maxlen:200 },
+      { id:"diferencial_3", tipo:"texto", rotulo:"Terceiro motivo", obrigatorio:false, maxlen:200 },
+      { id:"concorrentes", tipo:"longo", rotulo:"Quem são seus principais concorrentes?", obrigatorio:false, maxlen:500, ajuda:"Nomes ou endereços de sites e perfis. Serve para a gente se diferenciar deles." }
+    ]
+  },
+  {
+    id:"objetivo", parte:"site", planos:TODOS,
+    titulo:"O que o visitante deve fazer no site?",
+    intro:"Todo site tem uma ação principal. É para ela que o desenho todo é pensado.",
+    campos:[
+      { id:"acao_principal", tipo:"opcao", rotulo:"Ação principal", obrigatorio:true, opcoes:[
+        {v:"whatsapp", l:"Chamar no WhatsApp"}, {v:"ligar", l:"Ligar para o meu telefone"}, {v:"agendar", l:"Agendar um horário"},
+        {v:"orcamento", l:"Pedir um orçamento"}, {v:"comprar", l:"Comprar online"}, {v:"visitar", l:"Visitar o meu endereço"},
+        {v:"formulario", l:"Preencher um formulário de contato"}, {v:"seguir", l:"Seguir no Instagram"}
+      ]},
+      { id:"acao_principal_texto", tipo:"texto", rotulo:"Texto do botão principal", obrigatorio:false, maxlen:40, placeholder:"Ex.: Pedir meu orçamento", ajuda:"Se não souber, a gente escolhe um texto direto e curto." },
+      { id:"link_agenda", tipo:"url", rotulo:"Link da sua agenda online", obrigatorio:false, mostrarSe:(d)=>d.acao_principal==="agendar"||d.acao_secundaria==="agendar",
+        ajuda:"Calendly, Google Agenda ou outro. Se não tiver, o botão abre o WhatsApp já com a mensagem “Quero agendar um horário”." },
+      { id:"link_pagamento", tipo:"url", rotulo:"Link de pagamento do produto", obrigatorio:false, mostrarSe:(d)=>d.acao_principal==="comprar",
+        ajuda:"Link do Mercado Pago, PagSeguro, Stripe ou similar. Se não tiver, o botão abre o WhatsApp com a mensagem “Quero comprar”." },
+      { id:"acao_secundaria", tipo:"opcao", rotulo:"Existe uma segunda ação, menos importante?", obrigatorio:false, opcoes:[
+        {v:"nenhuma", l:"Não, só a principal"}, {v:"whatsapp", l:"Chamar no WhatsApp"}, {v:"ligar", l:"Ligar"}, {v:"agendar", l:"Agendar um horário"},
+        {v:"orcamento", l:"Pedir um orçamento"}, {v:"seguir", l:"Seguir no Instagram"}
+      ]},
+      { id:"meta_sucesso", tipo:"longo", rotulo:"Como você vai saber que o site deu certo?", obrigatorio:false, maxlen:400, placeholder:"Ex.: receber 10 pedidos de orçamento por mês pelo WhatsApp" }
+    ]
+  },
+  {
+    id:"oferta", parte:"site", planos:SEM_SM,
+    titulo:(d)=> ehPR(d) ? "Qual é a oferta da sua página?" : "O que você vende ou oferece?",
+    intro:(d)=> ehPR(d)
+      ? "Uma página só funciona melhor com uma oferta clara. Conte o produto ou serviço que ela vai apresentar."
+      : "Liste até 8 serviços ou produtos. Eles viram a vitrine do seu site.",
+    campos:[
+      { id:"oferta_itens", tipo:"lista", obrigatorio:true,
+        min:()=>1, max:(d)=> ehPR(d) ? 1 : 8, rotuloItem:(d)=> ehPR(d) ? "Oferta" : "Serviço ou produto", rotuloAdd:"Adicionar outro",
+        subcampos:[
+          { id:"nome", tipo:"texto", rotulo:"Nome", obrigatorio:true, maxlen:80 },
+          { id:"descricao", tipo:"longo", rotulo:"Descrição curta", obrigatorio:true, maxlen:400, ajuda:"O que é, para quem serve e o que o cliente recebe." },
+          { id:"preco", tipo:"texto", rotulo:"Preço", obrigatorio:false, maxlen:60, placeholder:"Ex.: R$ 120 ou a partir de R$ 80", ajuda:"Pode deixar em branco." }
+        ]
+      },
+      { id:"mostrar_precos", tipo:"opcao", rotulo:"Os preços devem aparecer no site?", obrigatorio:true, opcoes:[
+        {v:"mostrar", l:"Sim, mostrar os preços informados"}, {v:"sob_consulta", l:"Não, escrever “sob consulta”"}, {v:"decidir", l:"Vocês decidem o que for melhor"}
+      ]}
+    ]
+  },
+  {
+    id:"loja", parte:"site", planos:[PLANOS.SM],
+    titulo:"Sobre a sua loja",
+    intro:"A loja é montada com você em uma conversa. Estas respostas já deixam o escopo quase fechado.",
+    campos:[
+      { id:"loja_n_produtos", tipo:"opcao", rotulo:"Quantos produtos você pretende vender no começo?", obrigatorio:true, opcoes:[
+        {v:"ate20", l:"Até 20"}, {v:"21a100", l:"De 21 a 100"}, {v:"mais100", l:"Mais de 100"}
+      ]},
+      { id:"loja_categorias", tipo:"longo", rotulo:"Quais são as categorias de produtos?", obrigatorio:false, maxlen:500, placeholder:"Ex.: camisetas, calças, acessórios" },
+      { id:"loja_variacoes", tipo:"opcao", rotulo:"Os produtos têm variações, como tamanho ou cor?", obrigatorio:true, opcoes:SIM_NAO },
+      { id:"loja_pagamentos", tipo:"multi", rotulo:"Formas de pagamento que você quer aceitar", obrigatorio:true, opcoes:[
+        {v:"pix", l:"Pix"}, {v:"cartao", l:"Cartão de crédito"}, {v:"boleto", l:"Boleto"}, {v:"outro", l:"Outra forma (conto na conversa)"}
+      ]},
+      { id:"loja_gateway", tipo:"texto", rotulo:"Já usa alguma plataforma de pagamento?", obrigatorio:false, maxlen:80, placeholder:"Ex.: Mercado Pago, PagSeguro, Stripe" },
+      { id:"loja_frete", tipo:"multi", rotulo:"Como os produtos chegam ao cliente?", obrigatorio:true, opcoes:[
+        {v:"correios", l:"Correios"}, {v:"transportadora", l:"Transportadora"}, {v:"propria", l:"Entrega própria"}, {v:"retirada", l:"Retirada no local"}
+      ]},
+      { id:"loja_estoque", tipo:"opcao", rotulo:"Como você controla o estoque hoje?", obrigatorio:false, opcoes:[
+        {v:"planilha", l:"Planilha"}, {v:"sistema", l:"Sistema de gestão"}, {v:"nenhum", l:"Não controlo"}
+      ]},
+      { id:"loja_nf", tipo:"opcao", rotulo:"Você emite nota fiscal nas vendas?", obrigatorio:false, opcoes:SIM_NAO },
+      { id:"loja_trocas", tipo:"longo", rotulo:"Qual é a sua política de trocas e devoluções?", obrigatorio:false, maxlen:600 },
+      { id:"loja_plataforma", tipo:"texto", rotulo:"Você prefere alguma plataforma de loja?", obrigatorio:false, maxlen:80, placeholder:"Ex.: Nuvemshop, Shopify, ou sem preferência" }
+    ]
+  },
+  {
+    id:"estrutura", parte:"site", planos:SEM_SM,
+    titulo:(d)=> ehPR(d) ? "Que partes a sua página deve ter?" : "Quais páginas o seu site deve ter?",
+    intro:(d)=> ehPR(d)
+      ? "O topo, a oferta e o botão de contato sempre entram. Escolha o que mais entra, até 6 partes."
+      : "A página inicial sempre existe. Escolha até 4 páginas além dela.",
+    campos:[
+      { id:"secoes", tipo:"multi", rotulo:"Partes da página", obrigatorio:false, max:6, mostrarSe:(d)=>ehPR(d), opcoes:[
+        {v:"sobre", l:"Sobre o negócio"}, {v:"como_funciona", l:"Como funciona"}, {v:"provas", l:"Depoimentos e números"},
+        {v:"faq", l:"Perguntas frequentes"}, {v:"mapa", l:"Mapa e endereço"}, {v:"redes", l:"Redes sociais"}
+      ]},
+      { id:"paginas", tipo:"multi", rotulo:"Páginas", obrigatorio:true, max:4, mostrarSe:(d)=>ehSC(d), opcoes:[
+        {v:"sobre", l:"Sobre"}, {v:"servicos", l:"Serviços ou produtos"}, {v:"galeria", l:"Galeria de fotos"},
+        {v:"depoimentos", l:"Depoimentos"}, {v:"faq", l:"Perguntas frequentes"}, {v:"contato", l:"Contato"}, {v:"outra", l:"Outra página (descreva abaixo)"}
+      ]},
+      { id:"paginas_outra", tipo:"texto", rotulo:"Qual outra página?", obrigatorio:true, maxlen:120, mostrarSe:(d)=>ehSC(d) && Array.isArray(d.paginas) && d.paginas.includes("outra") },
+      { id:"estrutura_obs", tipo:"longo", rotulo:"Algo específico que precisa aparecer?", obrigatorio:false, maxlen:500, placeholder:"Ex.: uma tabela de preços na página de serviços" }
+    ]
+  },
+  {
+    id:"provas", parte:"site", planos:SEM_SM,
+    titulo:"O que dá confiança ao cliente?",
+    intro:"A gente só publica o que você informar aqui. Não inventamos depoimentos, números nem certificações.",
+    campos:[
+      { id:"depoimentos", tipo:"lista", obrigatorio:false, min:()=>0, max:()=>3, rotuloItem:()=>"Depoimento", rotuloAdd:"Adicionar depoimento",
+        rotulo:"Depoimentos de clientes (opcional)", ajuda:"Cole o que o cliente disse, com autorização dele. Se não tiver, pule.",
+        subcampos:[
+          { id:"texto", tipo:"longo", rotulo:"O que o cliente disse", obrigatorio:true, maxlen:500 },
+          { id:"nome", tipo:"texto", rotulo:"Nome do cliente", obrigatorio:true, maxlen:80 },
+          { id:"detalhe", tipo:"texto", rotulo:"Cidade, empresa ou cargo", obrigatorio:false, maxlen:80 }
+        ]
+      },
+      { id:"numeros", tipo:"longo", rotulo:"Números que impressionam", obrigatorio:false, maxlen:400, placeholder:"Ex.: +500 clientes atendidos, 12 anos de mercado", ajuda:"Só números verdadeiros e que você consiga comprovar." },
+      { id:"selos", tipo:"longo", rotulo:"Certificações, prêmios, parcerias ou clientes conhecidos", obrigatorio:false, maxlen:400 },
+      { id:"duvidas_frequentes", tipo:"longo", rotulo:"Perguntas que os clientes sempre fazem antes de comprar", obrigatorio:false, maxlen:1200,
+        ajuda:"Escreva as perguntas e, se souber, as respostas. Elas viram a seção de perguntas frequentes." }
+    ]
+  },
+  {
+    id:"contato_publico", parte:"contato", planos:TODOS,
+    titulo:"Como o cliente fala com o seu negócio?",
+    intro:"Estas informações aparecem publicadas no site.",
+    campos:[
+      { id:"whatsapp_negocio", tipo:"tel", rotulo:"WhatsApp do negócio", obrigatorio:true, placeholder:"(11) 91234-5678", autocomplete:"tel" },
+      { id:"telefone", tipo:"tel", rotulo:"Telefone fixo ou outro número", obrigatorio:false, placeholder:"(11) 4000-0000" },
+      { id:"email_publico", tipo:"email", rotulo:"E-mail do negócio", obrigatorio:false, placeholder:"contato@seunegocio.com.br", autocomplete:"email" },
+      { id:"endereco", tipo:"texto", rotulo:"Endereço completo", obrigatorio:true, maxlen:200, mostrarSe:(d)=>d.ponto_fisico==="sim", placeholder:"Rua, número, bairro, cidade, CEP", autocomplete:"street-address" },
+      { id:"maps_link", tipo:"url", rotulo:"Link do endereço no Google Maps", obrigatorio:false, mostrarSe:(d)=>d.ponto_fisico==="sim",
+        ajuda:"No Google Maps, busque o negócio, clique em Compartilhar e copie o link. Se não tiver, a gente monta pelo endereço." },
+      { id:"horario", tipo:"texto", rotulo:"Horário de atendimento", obrigatorio:true, maxlen:160, placeholder:"Seg a sex, 9h às 18h. Sáb, 9h às 13h", ajuda:"Se atende em feriados ou só com hora marcada, escreva aqui." }
+    ]
+  },
+  {
+    id:"redes", parte:"contato", planos:TODOS,
+    titulo:"Onde o seu negócio aparece nas redes?",
+    intro:"Informe só as que você realmente usa e mantém atualizadas.",
+    campos:[
+      { id:"instagram", tipo:"texto", rotulo:"Instagram", obrigatorio:false, maxlen:120, placeholder:"@seunegocio" },
+      { id:"facebook", tipo:"texto", rotulo:"Facebook", obrigatorio:false, maxlen:160 },
+      { id:"tiktok", tipo:"texto", rotulo:"TikTok", obrigatorio:false, maxlen:120, placeholder:"@seunegocio" },
+      { id:"linkedin", tipo:"texto", rotulo:"LinkedIn", obrigatorio:false, maxlen:160 },
+      { id:"youtube", tipo:"texto", rotulo:"YouTube", obrigatorio:false, maxlen:160 },
+      { id:"outras_redes", tipo:"texto", rotulo:"Outra rede ou link importante", obrigatorio:false, maxlen:200 },
+      { id:"feed_instagram", tipo:"opcao", rotulo:"Mostrar as últimas fotos do Instagram no site?", obrigatorio:false, mostrarSe:(d)=>temTexto(d.instagram), opcoes:SIM_NAO_DECIDIR }
+    ]
+  },
+  {
+    id:"estilo", parte:"visual", planos:TODOS,
+    titulo:"Qual estilo visual combina com o seu negócio?",
+    campos:[
+      { id:"estilo", tipo:"opcao", rotulo:"Estilo", obrigatorio:true, opcoes:[
+        {v:"vitrine", l:"Vitrine — editorial, elegante"}, {v:"sereno", l:"Sereno — calmo, clínico"}, {v:"robusto", l:"Robusto — técnico, industrial"},
+        {v:"traco", l:"Traço — criativo, ousado"}, {v:"aconchego", l:"Aconchego — caloroso, artesanal"}, {v:"estrutura", l:"Estrutura — sóbrio, confiante"}
+      ]},
+      { id:"cores_origem", tipo:"opcao", rotulo:"E as cores do site?", obrigatorio:true, opcoes:[
+        {v:"logo", l:"Usar as cores da minha logo"}, {v:"definidas", l:"Eu já tenho cores definidas"}, {v:"decidir", l:"Escolham por mim, de acordo com o estilo"}
+      ]},
+      { id:"cores_definidas", tipo:"texto", rotulo:"Quais cores?", obrigatorio:true, maxlen:120, mostrarSe:(d)=>d.cores_origem==="definidas", placeholder:"Ex.: #1E3A5F e dourado, ou azul-marinho e branco", ajuda:"Pode ser o código da cor ou o nome." },
+      { id:"cores_evitar", tipo:"texto", rotulo:"Alguma cor que você não quer de jeito nenhum?", obrigatorio:false, maxlen:120 }
+    ]
+  },
+  {
+    id:"referencias", parte:"visual", planos:TODOS,
+    titulo:"Sites que você admira",
+    intro:"Referências evitam surpresa. Pode ser de qualquer área.",
+    campos:[
+      { id:"ref_1", tipo:"url", rotulo:"Site de referência 1", obrigatorio:false },
+      { id:"ref_2", tipo:"url", rotulo:"Site de referência 2", obrigatorio:false },
+      { id:"ref_3", tipo:"url", rotulo:"Site de referência 3", obrigatorio:false },
+      { id:"ref_gostou", tipo:"longo", rotulo:"O que você gosta nesses sites?", obrigatorio:false, maxlen:500, mostrarSe:(d)=>temTexto(d.ref_1)||temTexto(d.ref_2)||temTexto(d.ref_3),
+        placeholder:"Ex.: as fotos grandes, o jeito limpo, o menu fixo" },
+      { id:"nao_quero", tipo:"longo", rotulo:"O que você não quer ver no seu site?", obrigatorio:false, maxlen:500, placeholder:"Ex.: nada de fundo escuro, sem janelas pulando na tela" }
+    ]
+  },
+  {
+    id:"material", parte:"visual", planos:TODOS,
+    titulo:"Fotos, logo e outros materiais",
+    intro:"Os arquivos em si a gente pede pelo WhatsApp depois do pedido. Aqui só precisamos saber o que existe.",
+    campos:[
+      { id:"tem_fotos", tipo:"opcao", rotulo:"Você tem fotos do seu negócio, produtos ou trabalhos?", obrigatorio:true, opcoes:[
+        {v:"sim", l:"Sim, tenho fotos boas para usar"}, {v:"algumas", l:"Tenho algumas, complementem com imagens de banco"}, {v:"nao", l:"Não, pode usar imagens de banco do meu segmento"}
+      ]},
+      { id:"link_fotos", tipo:"url", rotulo:"Link da pasta com as fotos", obrigatorio:false, mostrarSe:(d)=>d.tem_fotos==="sim"||d.tem_fotos==="algumas",
+        ajuda:"Google Drive, Dropbox ou similar, com acesso liberado. Se preferir, deixe em branco e envie pelo WhatsApp." },
+      { id:"tem_logo", tipo:"opcao", rotulo:"Você já tem uma logo pronta?", obrigatorio:true, opcoes:[
+        {v:"sim", l:"Sim, vou enviar"}, {v:"nao", l:"Não tenho, quero uma versão tipográfica incluída"}, {v:"refazer", l:"Tenho, mas quero refazer"}
+      ]},
+      { id:"link_logo", tipo:"url", rotulo:"Link do arquivo da logo", obrigatorio:false, mostrarSe:(d)=>d.tem_logo==="sim"||d.tem_logo==="refazer", ajuda:"De preferência em PNG com fundo transparente ou em vetor. Pode deixar em branco e enviar pelo WhatsApp." },
+      { id:"nome_na_logo", tipo:"texto", rotulo:"Como o nome deve aparecer escrito na logo?", obrigatorio:false, maxlen:80, mostrarSe:(d)=>d.tem_logo==="nao"||d.tem_logo==="refazer", ajuda:"Maiúsculas, minúsculas, com ou sem acento. Se for igual ao nome do negócio, deixe em branco." },
+      { id:"manual_marca", tipo:"opcao", rotulo:"Você tem manual de marca ou fontes definidas?", obrigatorio:false, opcoes:SIM_NAO },
+      { id:"video_link", tipo:"url", rotulo:"Link de vídeo para colocar no site", obrigatorio:false, ajuda:"YouTube ou Vimeo. Pode pular." }
+    ]
+  },
+  {
+    id:"texto", parte:"textos", planos:TODOS,
+    titulo:"Como devem ser os textos do site?",
+    campos:[
+      { id:"quem_escreve", tipo:"opcao", rotulo:"Quem escreve os textos?", obrigatorio:true, opcoes:[
+        {v:"cliente", l:"Eu mesmo escrevo"}, {v:"brasa", l:"Vocês escrevem pra mim"}
+      ]},
+      { id:"textos_cliente", tipo:"longo", rotulo:"Cole aqui os textos que você já tem", obrigatorio:false, maxlen:4000, mostrarSe:(d)=>d.quem_escreve==="cliente", ajuda:"Pode ser em partes, do jeito que estiver. A gente organiza nas seções. Se preferir, envie depois pelo WhatsApp." },
+      { id:"tom", tipo:"opcao", rotulo:"Qual é o jeito de falar do seu negócio?", obrigatorio:true, opcoes:[
+        {v:"formal", l:"Formal e sério"}, {v:"profissional", l:"Profissional e próximo"}, {v:"descontraido", l:"Descontraído e amigável"},
+        {v:"tecnico", l:"Técnico e direto"}, {v:"decidir", l:"Vocês decidem pelo meu segmento"}
+      ]},
+      { id:"slogan", tipo:"texto", rotulo:"Você tem um slogan?", obrigatorio:false, maxlen:120 },
+      { id:"palavras_usar", tipo:"texto", rotulo:"Palavras ou expressões que sempre devem aparecer", obrigatorio:false, maxlen:200 },
+      { id:"palavras_evitar", tipo:"texto", rotulo:"Palavras ou expressões que não devem aparecer", obrigatorio:false, maxlen:200 }
+    ]
+  },
+  {
+    id:"recursos", parte:"textos", planos:TODOS,
+    titulo:"Recursos do site",
+    campos:[
+      { id:"botao_whatsapp", tipo:"opcao", rotulo:"Um botão de WhatsApp sempre visível no canto da tela?", obrigatorio:true, opcoes:SIM_NAO_DECIDIR },
+      { id:"formulario_contato", tipo:"opcao", rotulo:"Um formulário de contato no site?", obrigatorio:true, opcoes:SIM_NAO },
+      { id:"email_formulario", tipo:"email", rotulo:"Para qual e-mail os contatos do formulário devem ir?", obrigatorio:true, mostrarSe:(d)=>d.formulario_contato==="sim" },
+      { id:"mapa", tipo:"opcao", rotulo:"Mostrar um mapa com o endereço?", obrigatorio:false, mostrarSe:(d)=>d.ponto_fisico==="sim", opcoes:SIM_NAO_DECIDIR },
+      { id:"idioma", tipo:"opcao", rotulo:"Em que idioma o site deve ser?", obrigatorio:true, opcoes:[
+        {v:"pt", l:"Só em português"}, {v:"pt_en", l:"Português e inglês"}
+      ]},
+      { id:"razao_social", tipo:"texto", rotulo:"Razão social, para o rodapé", obrigatorio:false, maxlen:120 },
+      { id:"cnpj", tipo:"texto", rotulo:"CNPJ, para o rodapé", obrigatorio:false, maxlen:20, placeholder:"00.000.000/0000-00" },
+      { id:"analytics", tipo:"texto", rotulo:"Códigos de acompanhamento, se você já tiver", obrigatorio:false, maxlen:200, ajuda:"Google Analytics ou Pixel do Meta. Se não souber o que é, pule." }
+    ]
+  },
+  {
+    id:"publicacao", parte:"publicacao", planos:TODOS,
+    titulo:"Publicação e prazo",
+    campos:[
+      { id:"tem_dominio", tipo:"opcao", rotulo:"Você já tem um domínio (o endereço do site, como seunegocio.com.br)?", obrigatorio:true, opcoes:[
+        {v:"sim", l:"Sim, já tenho"}, {v:"nao", l:"Não, preciso de ajuda para registrar"}, {v:"nao_sei", l:"Não sei dizer"}
+      ]},
+      { id:"dominio_desejado", tipo:"texto", rotulo:"Qual domínio (o que já tem, ou o que gostaria)?", obrigatorio:(d)=>d.tem_dominio==="sim", maxlen:120, placeholder:"seunegocio.com.br",
+        ajuda:"Verificamos a disponibilidade manualmente e confirmamos com você por WhatsApp." },
+      { id:"site_atual", tipo:"texto", rotulo:"Você tem um site ou página hoje? Qual o endereço?", obrigatorio:false, maxlen:200, ajuda:"Se existir, vamos substituir ou aproveitar o que for bom." },
+      { id:"data_desejada", tipo:"data", rotulo:"Precisa estar no ar até quando?", obrigatorio:false, ajuda:"Se não houver data fixa, deixe em branco. O prazo do plano continua valendo." },
+      { id:"motivo_prazo", tipo:"texto", rotulo:"O que acontece nessa data?", obrigatorio:false, maxlen:200, mostrarSe:(d)=>temTexto(d.data_desejada), placeholder:"Ex.: inauguração, lançamento, evento" },
+      { id:"aprovador", tipo:"opcao", rotulo:"Quem aprova o site final?", obrigatorio:true, opcoes:[
+        {v:"eu", l:"Só eu"}, {v:"varios", l:"Eu e mais alguém"}
+      ]},
+      { id:"aprovador_nomes", tipo:"texto", rotulo:"Quem mais precisa aprovar?", obrigatorio:true, maxlen:160, mostrarSe:(d)=>d.aprovador==="varios", placeholder:"Nome e função" },
+      { id:"observacoes", tipo:"longo", rotulo:"Mais alguma coisa que a gente deveria saber?", obrigatorio:false, maxlen:1500, ajuda:"Qualquer detalhe, restrição ou preferência que as perguntas não cobriram." }
+    ]
+  },
+  {
+    id:"contato_pedido", parte:"fechamento", planos:TODOS,
+    titulo:"Seu contato, pra combinarmos os próximos passos",
+    campos:[
+      { id:"seu_nome", tipo:"texto", rotulo:"Seu nome", obrigatorio:true, maxlen:80, autocomplete:"name" },
+      { id:"seu_whatsapp", tipo:"tel", rotulo:"Seu WhatsApp", obrigatorio:true, placeholder:"(11) 91234-5678", autocomplete:"tel" },
+      { id:"seu_email", tipo:"email", rotulo:"Seu e-mail", obrigatorio:false, autocomplete:"email", ajuda:"Recomendado. É por aqui que enviamos o resumo do pedido." },
+      { id:"melhor_horario", tipo:"opcao", rotulo:"Melhor horário para falarmos", obrigatorio:false, opcoes:[
+        {v:"manha", l:"De manhã"}, {v:"tarde", l:"À tarde"}, {v:"noite", l:"À noite"}, {v:"qualquer", l:"Qualquer horário"}
+      ]}
+    ]
+  },
+  {
+    id:"revisao", parte:"fechamento", planos:TODOS, especial:"revisao",
+    titulo:"Confira antes de enviar",
+    intro:"Leia com atenção. O que está aqui é exatamente o que usaremos para criar o seu site. Se algo estiver errado, clique em Editar.",
+    campos:[
+      { id:"consentimento", tipo:"confirmar", obrigatorio:true,
+        rotulo:"Confirmo que as informações estão corretas e autorizo a Brasa Digital a usá-las para criar o meu site e a falar comigo pelo WhatsApp informado." }
+    ]
+  },
+  { id:"sucesso", parte:"fechamento", planos:TODOS, especial:"sucesso", titulo:"Pedido recebido!", campos:[] }
+];
+
+/* ============================================================
+   Estado
+   ============================================================ */
+let dados = {};
+let indiceAtual = 0;
+let voltarParaRevisao = false;
+
+const palco = document.getElementById("palco");
+const msgErro = document.getElementById("msgErro");
+
+const fnv = (x, d) => typeof x === "function" ? x(d) : x;
+const telasAtivas = () => TELAS.filter(t => !dados.tier ? t.id === "escopo" : t.planos.includes(dados.tier));
+const camposVisiveis = (t) => t.campos.filter(c => !c.mostrarSe || c.mostrarSe(dados));
+const ehObrigatorio = (c) => !!fnv(c.obrigatorio, dados);
+const soDigitos = (s) => e(s).replace(/\D/g, "");
+
+/* ---------- rascunho ---------- */
+function salvarRascunho(){
+  try{
+    if(!dados.tier) return; // não sobrescreve um rascunho existente antes de o cliente escolher o plano
+    const telaId = (telasAtivas()[indiceAtual] || {}).id;
+    if(telaId === "sucesso") return;
+    localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({ dados, telaId, quando: Date.now() }));
+  }catch(_){}
+}
+function lerRascunho(){
+  try{
+    const bruto = localStorage.getItem(CHAVE_RASCUNHO);
+    if(!bruto) return null;
+    const r = JSON.parse(bruto);
+    if(!r || !r.dados || !r.dados.tier) return null;
+    if(Date.now() - (r.quando || 0) > 1000*60*60*24*30) return null;
+    return r;
+  }catch(_){ return null; }
+}
+function limparRascunho(){ try{ localStorage.removeItem(CHAVE_RASCUNHO); }catch(_){} }
+
+/* ---------- construção de elementos ---------- */
+function no(tag, attrs, ...filhos){
+  const n = document.createElement(tag);
+  for(const [k, v] of Object.entries(attrs || {})){
+    if(v === undefined || v === null || v === false) continue;
+    if(k === "class") n.className = v;
+    else if(k === "text") n.textContent = v;
+    else if(k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
   }
-  return [...base, "estilo", "textos", "contato_pedido", "sucesso"];
+  filhos.flat().forEach(f => { if(f !== null && f !== undefined) n.append(f.nodeType ? f : document.createTextNode(f)); });
+  return n;
 }
 
-let indiceAtual = 0;
+function rotuloCampo(c){
+  return c.rotulo + (ehObrigatorio(c) || c.tipo === "confirmar" || c.tipo === "lista" && c.obrigatorio ? "" : " (opcional)");
+}
 
-function telaAtualNome(){ return ordemTelas()[indiceAtual]; }
+function criarCampoSimples(c, valor, aoMudar, idBase){
+  const id = idBase;
+  const ajudaId = c.ajuda ? id + "-ajuda" : null;
+  let controle;
+  if(c.tipo === "longo"){
+    controle = no("textarea", { id, maxlength: c.maxlen || 1000, "aria-describedby": ajudaId, placeholder: c.placeholder, rows: 4 });
+  }else{
+    const tipoHtml = { email:"email", tel:"tel", data:"date" }[c.tipo] || "text";
+    controle = no("input", { id, type: tipoHtml, maxlength: c.maxlen || 200, "aria-describedby": ajudaId,
+      placeholder: c.placeholder, autocomplete: c.autocomplete, inputmode: c.tipo === "url" ? "url" : null });
+    if(c.tipo === "data") controle.min = new Date().toISOString().slice(0,10);
+  }
+  controle.value = e(valor);
+  controle.addEventListener("input", () => aoMudar(controle.value));
+  return controle;
+}
+
+function criarGrupo(c, escopo){
+  // escopo: { get(), set(v), idBase }
+  const g = no("div", { class:"grupo", "data-campo": c.id });
+  const id = escopo.idBase;
+  const ajuda = c.ajuda ? no("p", { class:"ajuda", id: id + "-ajuda", text: fnv(c.ajuda, dados) }) : null;
+  const erro = no("p", { class:"erro-campo", id: id + "-erro", hidden:true });
+
+  if(c.tipo === "opcao" || c.tipo === "multi"){
+    const fs = no("fieldset", { class:"grupo", style:"margin:0;", "aria-describedby": c.ajuda ? id + "-ajuda" : null });
+    fs.append(no("legend", { text: rotuloCampo(c) }));
+    if(ajuda) fs.append(ajuda);
+    const multi = c.tipo === "multi";
+    const atual = multi ? (Array.isArray(escopo.get()) ? escopo.get() : []) : escopo.get();
+    const inputs = [];
+    c.opcoes.forEach((op, i) => {
+      const inp = no("input", { type: multi ? "checkbox" : "radio", name: id, value: op.v, id: id + "-" + i });
+      inp.checked = multi ? atual.includes(op.v) : atual === op.v;
+      inputs.push(inp);
+      fs.append(no("label", { class:"opcao", for: id + "-" + i }, inp, no("span", { text: op.l })));
+    });
+    let contador = null;
+    const atualizarMulti = () => {
+      const marcados = inputs.filter(i => i.checked).map(i => i.value);
+      escopo.set(marcados);
+      if(c.max){
+        inputs.forEach(i => { i.disabled = !i.checked && marcados.length >= c.max; });
+        contador.textContent = marcados.length + " de " + c.max + " escolhidas";
+      }
+    };
+    if(multi && c.max){
+      contador = no("p", { class:"contador", "aria-live":"polite" });
+      fs.append(contador);
+    }
+    inputs.forEach(inp => inp.addEventListener("change", () => {
+      if(multi) atualizarMulti(); else escopo.set(inp.value);
+      aoMudarAlgo();
+    }));
+    if(multi && c.max) atualizarMulti();
+    g.append(fs, erro);
+    return g;
+  }
+
+  if(c.tipo === "confirmar"){
+    const inp = no("input", { type:"checkbox", id, "aria-describedby": id + "-erro" });
+    inp.checked = !!escopo.get();
+    inp.addEventListener("change", () => { escopo.set(inp.checked); aoMudarAlgo(); });
+    g.append(no("label", { class:"opcao", for:id, style:"font-weight:500;" }, inp, no("span", { text: c.rotulo })), erro);
+    return g;
+  }
+
+  g.append(no("label", { for:id, text: rotuloCampo(c) }));
+  if(ajuda) g.append(ajuda);
+  g.append(criarCampoSimples(c, escopo.get(), (v) => { escopo.set(v); aoMudarAlgo(); }, id), erro);
+  return g;
+}
+
+function criarLista(c){
+  const g = no("div", { class:"grupo", "data-campo": c.id });
+  if(c.rotulo) g.append(no("p", { style:"font-weight:600; font-size:14.5px; margin:0 0 4px;", text:c.rotulo }));
+  if(c.ajuda) g.append(no("p", { class:"ajuda", text:c.ajuda }));
+  const corpo = no("div");
+  const erro = no("p", { class:"erro-campo", id:"lista-" + c.id + "-erro", hidden:true });
+  const botao = no("button", { type:"button", class:"btn btn-leve" });
+  g.append(corpo, botao, erro);
+
+  const min = fnv(c.min, dados), max = fnv(c.max, dados);
+  if(!Array.isArray(dados[c.id])) dados[c.id] = [];
+  while(dados[c.id].length < min) dados[c.id].push({});
+
+  function desenhar(){
+    corpo.replaceChildren();
+    dados[c.id].forEach((item, idx) => {
+      const fs = no("fieldset", { class:"item", "data-item": idx });
+      fs.append(no("legend", { text: fnv(c.rotuloItem, dados) + " " + (idx + 1) }));
+      if(dados[c.id].length > min){
+        fs.append(no("div", { class:"item-topo" }, no("button", { type:"button", class:"btn-texto", text:"Remover", onclick:() => {
+          dados[c.id].splice(idx, 1); desenhar(); aoMudarAlgo();
+        }})));
+      }
+      c.subcampos.forEach(sc => {
+        const idBase = c.id + "-" + idx + "-" + sc.id;
+        const sg = criarGrupo(sc, { idBase, get:() => item[sc.id], set:(v) => { item[sc.id] = v; } });
+        sg.dataset.sub = sc.id;
+        fs.append(sg);
+      });
+      corpo.append(fs);
+    });
+    const cheio = dados[c.id].length >= max;
+    botao.hidden = cheio;
+    const vazio = dados[c.id].length === 0;
+    botao.textContent = vazio
+      ? (c.rotuloAdd === "Adicionar outro" ? "Adicionar " + fnv(c.rotuloItem, dados).toLowerCase() : c.rotuloAdd)
+      : "+ " + c.rotuloAdd;
+  }
+  botao.addEventListener("click", () => { dados[c.id].push({}); desenhar(); aoMudarAlgo(); const ult = corpo.querySelector(".item:last-child input, .item:last-child textarea"); if(ult) ult.focus(); });
+  desenhar();
+  return g;
+}
+
+/* ---------- renderização de tela ---------- */
+function aoMudarAlgo(){
+  salvarRascunho();
+  const t = telasAtivas()[indiceAtual];
+  if(!t) return;
+  t.campos.forEach(c => {
+    const n = palco.querySelector(`.grupo[data-campo="${c.id}"]`);
+    if(n && c.mostrarSe) n.hidden = !c.mostrarSe(dados);
+    if(n && c.mostrarSe && n.hidden) return;
+    // atualiza o rótulo "(opcional)" de campos de obrigatoriedade dinâmica
+    if(n && typeof c.obrigatorio === "function"){
+      const rot = n.querySelector(":scope > label, :scope > fieldset > legend");
+      if(rot) rot.textContent = rotuloCampo(c);
+    }
+  });
+}
+
+function construirTela(t){
+  const secao = no("section", { class:"tela ativa", "data-tela": t.id, "aria-labelledby":"titulo-tela" });
+  secao.append(no("h2", { id:"titulo-tela", tabindex:"-1", text: fnv(t.titulo, dados) }));
+  const intro = fnv(t.intro, dados);
+  if(intro) secao.append(no("p", { class:"intro", text: intro }));
+
+  if(t.especial === "revisao") secao.append(construirResumo());
+  if(t.especial === "sucesso") return construirSucesso(secao);
+
+  t.campos.forEach(c => {
+    let g;
+    if(c.tipo === "lista") g = criarLista(c);
+    else g = criarGrupo(c, { idBase:"campo-" + c.id, get:() => dados[c.id], set:(v) => { dados[c.id] = v; } });
+    if(c.mostrarSe && !c.mostrarSe(dados)) g.hidden = true;
+    secao.append(g);
+  });
+  return secao;
+}
+
+function rotuloDe(c, valor){
+  if(c.tipo === "opcao") return (c.opcoes.find(o => o.v === valor) || {}).l;
+  if(c.tipo === "multi") return (Array.isArray(valor) ? valor : []).map(v => (c.opcoes.find(o => o.v === v) || {}).l).filter(Boolean).join(", ");
+  return null;
+}
+
+function construirResumo(){
+  const caixa = no("div");
+  telasAtivas().filter(t => !t.especial && t.campos.length).forEach(t => {
+    const dl = no("dl");
+    camposVisiveis(t).forEach(c => {
+      if(c.tipo === "lista"){
+        const itens = (dados[c.id] || []).filter(it => Object.values(it).some(temTexto));
+        const txt = itens.map((it, i) => (i + 1) + ". " + c.subcampos.map(s => temTexto(it[s.id]) ? s.rotulo + ": " + it[s.id] : null).filter(Boolean).join(" | ")).join("\n");
+        dl.append(no("dt", { text:c.rotulo || fnv(t.titulo, dados) }), no("dd", { class: txt ? "" : "vazio", text: txt || "Não informado" }));
+        return;
+      }
+      const bruto = dados[c.id];
+      const texto = rotuloDe(c, bruto) ?? e(bruto).trim();
+      dl.append(no("dt", { text:c.rotulo }), no("dd", { class: texto ? "" : "vazio", text: texto || "Não informado" }));
+    });
+    const idx = telasAtivas().findIndex(x => x.id === t.id);
+    caixa.append(no("div", { class:"resumo-bloco" },
+      no("header", {}, no("h3", { text: fnv(t.titulo, dados) }),
+        no("button", { type:"button", class:"btn-texto", text:"Editar", "aria-label":"Editar: " + fnv(t.titulo, dados), onclick:() => { voltarParaRevisao = true; irPara(idx); } })),
+      dl));
+  });
+  return caixa;
+}
+
+function construirSucesso(secao){
+  const passos = [
+    "Em até 24h úteis você recebe as instruções de pagamento do sinal pelo WhatsApp que informou.",
+    "Com o sinal confirmado, o seu site entra em produção dentro do prazo do plano."
+  ];
+  if(dados.tem_fotos === "sim" || dados.tem_fotos === "algumas") passos.splice(1, 0, "Vamos pedir as fotos pelo WhatsApp" + (temTexto(dados.link_fotos) ? " (se o link da pasta estiver liberado, já conseguimos pegar de lá)." : "."));
+  if(dados.tem_logo === "sim" || dados.tem_logo === "refazer") passos.splice(1, 0, "Vamos pedir o arquivo da logo pelo WhatsApp" + (temTexto(dados.link_logo) ? " (se o link estiver liberado, já conseguimos pegar de lá)." : "."));
+  secao.append(no("div", { class:"sucesso" },
+    no("p", { text:"Recebemos todas as suas respostas. Agora é assim:" }),
+    no("ol", {}, passos.map(p => no("li", { text:p })))));
+  return secao;
+}
 
 function render(){
-  const ordem = ordemTelas();
-  document.querySelectorAll(".tela").forEach(t => t.classList.remove("ativa"));
-  const nomeTela = ordem[indiceAtual];
-  document.querySelector(`.tela[data-tela="${nomeTela}"]`).classList.add("ativa");
+  const ativas = telasAtivas();
+  if(indiceAtual >= ativas.length) indiceAtual = ativas.length - 1;
+  const t = ativas[indiceAtual];
+  palco.replaceChildren(construirTela(t));
+  msgErro.textContent = "";
 
-  // barra de progresso
+  // progresso por parte
+  const partesAtivas = [...new Set(ativas.map(x => x.parte))];
+  const parteAtual = partesAtivas.indexOf(t.parte);
   const barra = document.getElementById("barraProgresso");
-  barra.innerHTML = "";
-  ordem.slice(0, ordem.length - 1).forEach((_, i) => {
-    const span = document.createElement("span");
-    if(i <= indiceAtual) span.classList.add("ativa");
-    barra.appendChild(span);
-  });
+  barra.replaceChildren(...partesAtivas.map((_, i) => no("span", { class: i <= parteAtual ? "ativo" : "" })));
+  document.getElementById("rotuloParte").textContent = t.especial === "sucesso" ? "" : "Parte " + (parteAtual + 1) + " de " + partesAtivas.length + " · " + PARTES[t.parte];
+  barra.style.display = t.especial === "sucesso" ? "none" : "flex";
 
-  // navegação
-  document.getElementById("btnVoltar").style.display = indiceAtual === 0 ? "none" : "inline-flex";
-  const ehFinal = nomeTela === "sucesso";
+  const ehFinal = t.especial === "sucesso";
   document.getElementById("navBotoes").style.display = ehFinal ? "none" : "flex";
+  document.getElementById("btnVoltar").style.display = indiceAtual === 0 ? "none" : "inline-flex";
+  const btn = document.getElementById("btnAvancar");
+  btn.textContent = t.especial === "revisao" ? "Enviar pedido" : (voltarParaRevisao ? "Salvar e voltar à revisão" : "Continuar");
+  btn.disabled = false;
+
+  const h = palco.querySelector("h2");
+  if(h) h.focus({ preventScroll:true });
+  window.scrollTo({ top:0 });
+  salvarRascunho();
 }
 
-document.querySelectorAll(".opcao").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const campo = btn.dataset.campo;
-    const valor = btn.dataset.valor;
-    dados[campo] = valor;
-    document.querySelectorAll(`.opcao[data-campo="${campo}"]`).forEach(b => b.classList.remove("selecionada"));
-    btn.classList.add("selecionada");
+function irPara(i){ indiceAtual = i; render(); }
+
+/* ---------- validação ---------- */
+function validarValor(c, valor){
+  const s = e(valor).trim();
+  if(!s) return null;
+  if(c.min && s.length < c.min) return "Conte um pouco mais (mínimo de " + c.min + " caracteres) para a gente acertar no site.";
+  if(c.tipo === "tel"){
+    let d = soDigitos(s);
+    if(d.startsWith("55") && d.length > 11) d = d.slice(2);
+    if(d.length < 10 || d.length > 11) return "Digite o número com DDD, por exemplo (11) 91234-5678.";
+  }
+  if(c.tipo === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s)) return "Digite um e-mail válido, por exemplo nome@dominio.com.br.";
+  if(c.tipo === "url"){
+    try{
+      const u = new URL(/^https?:\/\//i.test(s) ? s : "https://" + s);
+      if(!u.hostname.includes(".")) throw new Error("x");
+    }catch(_){ return "Cole o link completo, por exemplo https://exemplo.com.br."; }
+  }
+  if(c.id === "cnpj" && soDigitos(s).length !== 14) return "O CNPJ tem 14 números.";
+  if(c.tipo === "data"){
+    const hoje = new Date().toISOString().slice(0,10);
+    if(s < hoje) return "Escolha uma data de hoje em diante.";
+  }
+  return null;
+}
+
+function validarCampo(c, valor){
+  if(c.tipo === "opcao") return ehObrigatorio(c) && !valor ? "Escolha uma opção para continuar." : null;
+  if(c.tipo === "multi"){
+    const n = Array.isArray(valor) ? valor.length : 0;
+    return ehObrigatorio(c) && n === 0 ? "Escolha pelo menos uma opção." : null;
+  }
+  if(c.tipo === "confirmar") return ehObrigatorio(c) && !valor ? "Marque a confirmação para enviar o pedido." : null;
+  if(ehObrigatorio(c) && !temTexto(valor)) return "Preencha este campo para continuar.";
+  return validarValor(c, valor);
+}
+
+function validarTela(t){
+  const erros = [];
+  camposVisiveis(t).forEach(c => {
+    if(c.tipo === "lista"){
+      const itens = dados[c.id] || [];
+      const min = fnv(c.min, dados);
+      if(itens.length < min) erros.push({ campo:c.id, msg:"Adicione pelo menos " + min + "." });
+      itens.forEach((it, idx) => c.subcampos.forEach(sc => {
+        const m = validarCampo(sc, it[sc.id]);
+        if(m) erros.push({ campo:c.id, item:idx, sub:sc.id, msg:m });
+      }));
+      return;
+    }
+    const m = validarCampo(c, dados[c.id]);
+    if(m) erros.push({ campo:c.id, msg:m });
   });
-});
+  return erros;
+}
 
-function coletarCamposDaTela(nomeTela){
-  if(nomeTela === "contato_negocio"){
-    dados.whatsapp_negocio = document.getElementById("campo_whatsapp_negocio").value;
-    dados.endereco = document.getElementById("campo_endereco").value;
-    dados.horario = document.getElementById("campo_horario").value;
-  }
-  if(nomeTela === "dominio"){
-    dados.dominio_desejado = document.getElementById("campo_dominio").value;
-  }
-  if(nomeTela === "dados_negocio"){
-    dados.nome_negocio = document.getElementById("campo_nome_negocio").value;
-    dados.descricao = document.getElementById("campo_descricao").value;
-  }
-  if(nomeTela === "contato_pedido"){
-    dados.seu_nome = document.getElementById("campo_seu_nome").value;
-    dados.seu_whatsapp = document.getElementById("campo_seu_whatsapp").value;
-    dados.seu_email = document.getElementById("campo_seu_email").value;
+function mostrarErros(erros){
+  palco.querySelectorAll(".grupo.invalido").forEach(g => g.classList.remove("invalido"));
+  palco.querySelectorAll(".erro-campo").forEach(p => { p.hidden = true; p.textContent = ""; });
+  let primeiro = null;
+  erros.forEach(er => {
+    let alvo;
+    if(er.item !== undefined){
+      alvo = palco.querySelector(`.grupo[data-campo="${er.campo}"] .item[data-item="${er.item}"] .grupo[data-sub="${er.sub}"]`);
+    }else{
+      alvo = palco.querySelector(`.grupo[data-campo="${er.campo}"]`);
+    }
+    if(!alvo) return;
+    alvo.classList.add("invalido");
+    const p = alvo.querySelector(".erro-campo") || palco.querySelector("#lista-" + er.campo + "-erro");
+    if(p){ p.textContent = er.msg; p.hidden = false; }
+    if(!primeiro) primeiro = alvo;
+  });
+  if(primeiro){
+    primeiro.scrollIntoView({ block:"center", behavior:"smooth" });
+    const foco = primeiro.querySelector("input:not([disabled]), textarea");
+    if(foco) foco.focus({ preventScroll:true });
   }
 }
 
-function telaValida(nomeTela){
-  const exigeOpcao = ["classificacao","segmento","fotos","logo","tem_dominio","estilo","textos"];
-  if(nomeTela === "classificacao") return !!dados.tier;
-  if(nomeTela === "segmento") return !!dados.segmento;
-  if(nomeTela === "fotos") return !!dados.tem_fotos;
-  if(nomeTela === "logo") return !!dados.tem_logo;
-  if(nomeTela === "dominio") return !!dados.tem_dominio;
-  if(nomeTela === "estilo") return !!dados.estilo;
-  if(nomeTela === "textos") return !!dados.quem_escreve;
-  if(nomeTela === "dados_negocio") return !!(dados.nome_negocio && dados.descricao);
-  if(nomeTela === "contato_pedido") return !!(dados.seu_nome && dados.seu_whatsapp);
-  return true;
+/* ---------- envio ---------- */
+function montarRespostas(){
+  const respostas = { versao_formulario: VERSAO_FORMULARIO, enviado_em: new Date().toISOString(), rotulos:{} };
+  telasAtivas().filter(t => !t.especial || t.id === "revisao").forEach(t => {
+    camposVisiveis(t).forEach(c => {
+      if(c.tipo === "confirmar") return;
+      let v = dados[c.id];
+      if(c.tipo === "lista"){
+        v = (v || []).slice(0, fnv(c.max, dados)).map(it => {
+          const o = {}; c.subcampos.forEach(sc => { if(temTexto(it[sc.id])) o[sc.id] = e(it[sc.id]).trim(); });
+          return o;
+        }).filter(o => Object.keys(o).length);
+        respostas[c.id] = v;
+        return;
+      }
+      if(c.tipo === "opcao" || c.tipo === "multi"){
+        if(c.tipo === "multi" ? (v && v.length) : v){
+          respostas[c.id] = v;
+          respostas.rotulos[c.id] = rotuloDe(c, v) && (c.tipo === "multi" ? v.map(x => (c.opcoes.find(o => o.v === x) || {}).l) : rotuloDe(c, v));
+        }
+        return;
+      }
+      if(temTexto(v)){
+        let s = e(v).trim();
+        if(c.tipo === "url" && !/^https?:\/\//i.test(s)) s = "https://" + s;
+        respostas[c.id] = s;
+      }
+    });
+  });
+  respostas.consentimento = true;
+  return respostas;
 }
 
 async function enviarPedido(){
-  const precoPorTier = { presenca_rapida: 997, site_completo: 2497, sob_medida: 0 };
-  const rodadasPorTier = { presenca_rapida: 1, site_completo: 2, sob_medida: 0 };
+  const precoPorTier = { presenca_rapida:997, site_completo:2497, sob_medida:0 };
+  const rodadasPorTier = { presenca_rapida:1, site_completo:2, sob_medida:0 };
+  const respostas = montarRespostas();
 
   const clienteId = crypto.randomUUID();
   const pedidoId = crypto.randomUUID();
 
   const { error: erroCliente } = await sb.from("clientes").insert({
     id: clienteId,
-    nome_negocio: dados.nome_negocio,
-    contato_email: dados.seu_email || null,
-    contato_whatsapp: dados.seu_whatsapp,
-    dominio: dados.dominio_desejado || null
+    nome_negocio: respostas.nome_negocio,
+    contato_email: respostas.seu_email || null,
+    contato_whatsapp: respostas.seu_whatsapp,
+    dominio: respostas.dominio_desejado || null
   });
   if(erroCliente){ console.error("erro clientes:", erroCliente); throw erroCliente; }
 
   const { error: erroPedido } = await sb.from("pedidos").insert({
     id: pedidoId,
     client_id: clienteId,
-    tier: dados.tier,
-    preco: precoPorTier[dados.tier],
-    rodadas_incluidas: rodadasPorTier[dados.tier]
+    tier: respostas.tier,
+    preco: precoPorTier[respostas.tier],
+    rodadas_incluidas: rodadasPorTier[respostas.tier]
   });
   if(erroPedido){ console.error("erro pedidos:", erroPedido); throw erroPedido; }
 
   const { error: erroRespostas } = await sb.from("formulario_respostas").insert({
     pedido_id: pedidoId,
-    respostas: dados
+    respostas
   });
   if(erroRespostas){ console.error("erro formulario_respostas:", erroRespostas); throw erroRespostas; }
 }
 
-document.getElementById("btnAvancar").addEventListener("click", async () => {
-  const nomeTela = telaAtualNome();
-  coletarCamposDaTela(nomeTela);
-  const msgErro = document.getElementById("msgErro");
+/* ---------- navegação ---------- */
+document.getElementById("formPedido").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const ativas = telasAtivas();
+  const t = ativas[indiceAtual];
   msgErro.textContent = "";
 
-  if(!telaValida(nomeTela)){
-    msgErro.textContent = "Preenche esse campo antes de continuar.";
+  const erros = validarTela(t);
+  mostrarErros(erros);
+  if(erros.length){
+    msgErro.textContent = erros.length === 1 ? "Falta 1 item nesta tela. Ele está marcado em vermelho." : "Faltam " + erros.length + " itens nesta tela. Eles estão marcados em vermelho.";
     return;
   }
 
-  const ordem = ordemTelas();
-  const proximaTela = ordem[indiceAtual + 1];
-
-  if(proximaTela === "sucesso"){
+  if(t.especial === "revisao"){
+    // o cliente pode ter trocado de plano pela revisão: confere TODAS as telas do plano atual antes de enviar
+    const pendente = ativas.findIndex(x => !x.especial && validarTela(x).length > 0);
+    if(pendente >= 0){
+      voltarParaRevisao = true;
+      irPara(pendente);
+      mostrarErros(validarTela(telasAtivas()[pendente]));
+      msgErro.textContent = "Antes de enviar, falta responder esta tela. Ela passou a ser necessária para o seu plano.";
+      return;
+    }
     const btn = document.getElementById("btnAvancar");
-    btn.disabled = true;
-    btn.textContent = "Enviando...";
+    btn.disabled = true; btn.textContent = "Enviando...";
     try{
       await enviarPedido();
-      indiceAtual++;
+      limparRascunho();
+      indiceAtual = ativas.findIndex(x => x.id === "sucesso");
       render();
-    }catch(e){
-      msgErro.textContent = "Não consegui enviar, tenta de novo em instantes.";
-      btn.disabled = false;
-      btn.textContent = "Continuar";
+    }catch(_){
+      msgErro.textContent = "Não consegui enviar. Suas respostas continuam salvas, tente de novo em instantes.";
+      btn.disabled = false; btn.textContent = "Enviar pedido";
     }
     return;
   }
 
+  if(voltarParaRevisao){
+    voltarParaRevisao = false;
+    // se a edição mudou o plano, as telas mudam; revisão é sempre a penúltima
+    indiceAtual = telasAtivas().findIndex(x => x.id === "revisao");
+    render();
+    return;
+  }
   indiceAtual++;
   render();
 });
 
 document.getElementById("btnVoltar").addEventListener("click", () => {
+  voltarParaRevisao = false;
   if(indiceAtual > 0){ indiceAtual--; render(); }
 });
 
-render();
+/* ---------- início ---------- */
+function iniciar(){
+  const r = lerRascunho();
+  const aviso = document.getElementById("avisoRascunho");
+  if(r){
+    aviso.append(no("div", { class:"retomar", role:"region", "aria-label":"Pedido salvo" },
+      no("p", { text:"Encontramos um pedido começado neste aparelho" + (r.dados.nome_negocio ? " (" + r.dados.nome_negocio + ")" : "") + ". Quer continuar de onde parou?" }),
+      no("button", { type:"button", class:"btn", text:"Continuar de onde parei", onclick:() => {
+        dados = r.dados;
+        const i = telasAtivas().findIndex(x => x.id === r.telaId);
+        aviso.replaceChildren(); indiceAtual = i >= 0 ? i : 0; render();
+      }}),
+      document.createTextNode(" "),
+      no("button", { type:"button", class:"btn btn-voltar", style:"margin-right:0;", text:"Começar do zero", onclick:() => {
+        limparRascunho(); dados = {}; aviso.replaceChildren(); indiceAtual = 0; render();
+      }})
+    ));
+  }
+  render();
+}
+iniciar();
 </script>
 
 </body>

@@ -43,7 +43,7 @@
   .btn-secundario{background:transparent; border:1px solid var(--carvao); color:var(--carvao);}
   .btn-secundario:hover{background:var(--carvao); color:var(--osso);}
   textarea.prompt{
-    width:100%; min-height:260px; margin-top:14px; padding:14px; border-radius:3px; border:1px solid var(--osso-suave);
+    width:100%; min-height:420px; margin-top:14px; padding:14px; border-radius:3px; border:1px solid var(--osso-suave);
     font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:var(--carvao); color:var(--osso); display:none; white-space:pre-wrap;
   }
   .vazio{text-align:center; padding:60px 0; color:var(--fumaca);}
@@ -81,11 +81,320 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const NOMES_TIER = { presenca_rapida: "Presença Rápida", site_completo: "Site Completo", sob_medida: "Sob Medida" };
 const NOMES_STATUS = { rascunho: "Rascunho", em_producao: "Em produção", aguardando_aprovacao: "Aguardando aprovação", aprovado: "Aprovado", reprovado: "Reprovado", no_ar: "No ar" };
 
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
 const GUIA_DE_VOZ = `Tom: profissional, caloroso, direto. Fala com o dono do negócio como um parceiro que entende do assunto, não como vendedor nem como manual técnico.
 Vocabulário: nunca usar termo técnico voltado ao cliente (landing page, tier, CTA, SEO, UX). Evitar adjetivo vazio sem prova por trás (revolucionário, incrível, único).
 Regras de estilo: sem travessão em-dash em nenhuma frase; evitar ritmo staccato de contraste binário; evitar clichês de abertura (Descubra..., Você sabia que..., No mundo dinâmico de hoje...); sem preâmbulo; chamada para ação sempre com verbo direto e curto.`;
 
-function montarPrompt(pedido, respostas){
+const ESTILOS = {
+  vitrine: "VITRINE (editorial, elegante). Títulos em serifa de alto contraste e itálico (ex.: Playfair Display), texto em sans leve. Paleta neutra quente (areia, grafite suave) com UM acento discreto. Muito espaço em branco, imagens grandes, composição de revista. Botões contornados, sem cantos arredondados.",
+  sereno: "SERENO (calmo, clínico). Sans-serif suave e legível (ex.: Work Sans ou DM Sans), pesos 400 a 500. Fundo claro esverdeado ou azulado, verde-água como acento. Cantos arredondados, botões em pílula, ícones lineares finos. Tom tranquilizador, nada agressivo.",
+  robusto: "ROBUSTO (técnico, industrial). Títulos condensados em caixa alta (ex.: Bebas Neue ou Oswald). Amarelo de segurança sobre preto e grafite, contraste forte. Blocos retos, números e ícones grandes, botões retangulares pesados. Sensação de solidez.",
+  traco: "TRAÇO (criativo, ousado). Fundo escuro, tipografia condensada grande, acento vermelho ou magenta intenso. Composição assimétrica com cortes e sobreposições, botões chapados. Pode quebrar a grade, sempre mantendo a legibilidade.",
+  aconchego: "ACONCHEGO (caloroso, artesanal). Slab serif amigável nos títulos (ex.: Zilla Slab) e sans arredondada no texto. Tons de creme, marrom e dourado queimado. Cantos suavemente arredondados, botões em pílula, textura sutil, fotos de bastidores.",
+  estrutura: "ESTRUTURA (sóbrio, confiante). Azul-marinho com dourado discreto. Títulos em slab ou serifa firme. Grade rígida de colunas, hierarquia clara, números e dados em destaque. Botões retangulares. Aparência de empresa estabelecida."
+};
+
+const LIMITES_PLANO = {
+  presenca_rapida: "Presença Rápida: UMA página única, de rolagem contínua. 1 rodada de ajuste após a entrega. Sem blog, loja, área de login ou integrações além de WhatsApp, formulário, mapa e redes sociais. Prazo de 2 a 3 dias úteis.",
+  site_completo: "Site Completo: até 5 páginas, contando a página inicial. 2 rodadas de ajuste após a entrega. Integra WhatsApp e redes sociais. Sem loja online. Prazo de 5 a 7 dias úteis.",
+  sob_medida: "Sob Medida (loja online ou site maior): o escopo final é fechado em reunião com o cliente. Este briefing é o pré-briefing. NÃO produza a loja inteira agora."
+};
+
+/* ---------- ajudantes do prompt ---------- */
+const txt = (v) => (v === undefined || v === null) ? "" : String(v).trim();
+const soDig = (v) => txt(v).replace(/\D/g, "");
+function nacional(v){ let d = soDig(v); if(d.startsWith("55") && d.length > 11) d = d.slice(2); return d; }
+function waLink(tel, msg){ const n = nacional(tel); return n ? `https://wa.me/55${n}${msg ? "?text=" + encodeURIComponent(msg) : ""}` : null; }
+function urlRede(v, base){
+  const s = txt(v); if(!s) return null;
+  if(/^https?:\/\//i.test(s)) return s;
+  if(base && s.startsWith("@")) return base + s.slice(1);
+  if(/\.[a-z]{2,}/i.test(s)) return "https://" + s;
+  return base ? base + s : `${s} (confirmar o link completo com o cliente)`;
+}
+
+function montarPromptSite(pedido, r, clienteBanco){
+  r = r || {};
+  const rot = (k) => {
+    const x = r.rotulos && r.rotulos[k];
+    if(x !== undefined && x !== null) return Array.isArray(x) ? x.join("; ") : x;
+    const v = r[k];
+    return Array.isArray(v) ? v.join("; ") : v;
+  };
+  const T = (k) => { const v = txt(rot(k)); return v || null; };
+  const pend = [];
+  const L = (rotulo, valor, padrao, importante) => {
+    if(valor === null || valor === undefined || valor === ""){
+      if(importante) pend.push(`${rotulo}: ${padrao || "informação essencial ausente, pedir ao cliente antes de publicar"}`);
+      return `- ${rotulo}: NÃO INFORMADO${padrao ? ` → regra padrão: ${padrao}` : ""}`;
+    }
+    return `- ${rotulo}: ${valor}`;
+  };
+  const SIM = (k) => r[k] === "sim";
+  // quando o cliente escolhe "vocês decidem", o prompt diz exatamente o que fazer
+  const Dec = (k, regra) => r[k] === "decidir" ? `o cliente deixou a decisão com a Brasa. Regra: ${regra}` : T(k);
+  const dataBR = (iso) => /^\d{4}-\d{2}-\d{2}$/.test(txt(iso)) ? iso.split("-").reverse().join("/") : iso;
+
+  const tier = pedido.tier || r.tier;
+  const plano = NOMES_TIER[tier] || tier;
+  const nome = txt(r.nome_negocio) || clienteBanco?.nome_negocio || "NÃO INFORMADO";
+  const idCurto = String(pedido.id || "").slice(0, 8);
+  const antigo = !r.versao_formulario;
+  const wa = (msg) => waLink(r.whatsapp_negocio, msg);
+
+  function implAcao(c){
+    switch(c){
+      case "whatsapp": return `abre ${wa(`Olá! Vim pelo site da ${nome} e quero conversar.`) || "o WhatsApp (número NÃO INFORMADO)"}`;
+      case "ligar": { const n = nacional(r.telefone || r.whatsapp_negocio); return n ? `link tel:+55${n}` : "ligação (telefone NÃO INFORMADO)"; }
+      case "agendar": return r.link_agenda ? `abre ${r.link_agenda}` : `abre ${wa("Olá! Quero agendar um horário.")} (o cliente não tem agenda online)`;
+      case "orcamento": return `abre ${wa("Olá! Quero pedir um orçamento.")}`;
+      case "comprar": return r.link_pagamento ? `abre ${r.link_pagamento}` : `abre ${wa("Olá! Quero comprar.")} (o cliente não informou link de pagamento)`;
+      case "visitar": return r.maps_link ? `abre ${r.maps_link}` : "abre o Google Maps pelo endereço informado";
+      case "formulario": return "leva ao formulário de contato (âncora na própria página)";
+      case "seguir": return r.instagram ? `abre ${urlRede(r.instagram, "https://instagram.com/")}` : "abre o Instagram (perfil NÃO INFORMADO)";
+      default: return "";
+    }
+  }
+
+  const S = []; // seções
+  const sec = (titulo, linhas) => S.push(`## ${titulo}\n${linhas.filter(l => l !== null && l !== undefined).join("\n")}`);
+
+  /* 1. missão */
+  const missao = tier === "sob_medida"
+    ? [`Este é o pré-briefing de uma LOJA ONLINE para o cliente abaixo. O escopo final será fechado em reunião. Sua tarefa agora é preparar essa reunião e mostrar a direção visual. Entregue:`,
+       `1. ESCOPO.md: resumo do negócio, lista de páginas e funcionalidades da loja, e o que depende de decisão do cliente.`,
+       `2. PLATAFORMA.md: recomendação de plataforma (loja pronta ou desenvolvimento sob medida) com justificativa baseada nas respostas de produtos, pagamentos, frete e estoque, além de custos recorrentes a considerar.`,
+       `3. PERGUNTAS.md: tudo o que ainda precisa ser esclarecido na reunião.`,
+       `4. PROTOTIPO/index.html: protótipo estático apenas da página inicial da loja, no estilo escolhido, com produtos fictícios claramente marcados como exemplo.`,
+       `Não pergunte nada de volta. Onde faltar informação, aplique a regra padrão indicada com → e registre a decisão em PERGUNTAS.md.`]
+    : [`Construa o site descrito neste briefing, completo e pronto para publicar. Este documento é a única fonte de verdade: tudo o que o cliente informou está aqui.`,
+       `Não pergunte nada de volta. Onde faltar informação, aplique a regra padrão indicada com → ao lado do item e registre a decisão no arquivo DECISOES.md, para a equipe confirmar com o cliente.`];
+  sec("1. O que você deve fazer", missao);
+
+  /* 2. regras */
+  sec("2. Regras que valem para tudo", [
+    `1. Use SOMENTE fatos deste briefing. Nunca invente depoimentos, números, preços, endereços, certificações, prêmios, nomes de pessoas, datas ou promessas. Sem informação, omita o elemento. Nunca preencha com exemplo.`,
+    `2. Nada de texto de preenchimento visível (lorem ipsum, "seu texto aqui", "em breve"), nenhum link quebrado, nenhum href="#" sem destino, nenhum botão sem ação.`,
+    `3. Nunca mencione inteligência artificial, automação, ferramentas de produção nem divisão de trabalho: nem no site, nem nos metadados, nem em comentários de código.`,
+    `4. Idioma: ${r.idioma === "pt_en" ? "português do Brasil e inglês, com seletor de idioma visível" : "português do Brasil"}. Ortografia e acentuação corretas.`,
+    `5. Voz da marca:\n${GUIA_DE_VOZ}`,
+    `6. Imagens: use as do cliente quando existirem. Sem elas, use banco gratuito com licença comercial (ex.: Unsplash), coerente com o segmento. Nunca use foto de pessoa como se fosse a equipe ou um cliente do negócio. Se não conseguir baixar imagens, use blocos de cor e ilustrações SVG sóbrias, nunca imagem quebrada. Todo <img> com texto alternativo descritivo.`,
+    `7. Preços: ${{ mostrar:"mostre os preços informados pelo cliente e escreva \"sob consulta\" nos itens sem preço", sob_consulta:"NÃO mostre nenhum preço, escreva \"sob consulta\" em todos os itens", decidir:"mostre apenas os preços informados pelo cliente e escreva \"sob consulta\" nos demais" }[r.mostrar_precos] || "NÃO INFORMADO → mostre só os preços que o cliente informou e escreva \"sob consulta\" nos demais"}.`
+  ]);
+
+  /* 3. plano */
+  sec("3. Limites do plano contratado", [`- ${LIMITES_PLANO[tier] || plano}`, `- Pedido ${idCurto}, plano ${plano}${pedido.preco ? `, R$ ${Number(pedido.preco).toLocaleString("pt-BR")}` : ""}.`]);
+
+  /* 4. negócio */
+  sec("4. Negócio", [
+    L("Nome do negócio (grafia exata)", nome === "NÃO INFORMADO" ? null : nome, "", true),
+    L("Segmento", r.segmento === "outro" ? (T("segmento_outro") || "Outro") : T("segmento"), "deduzir pela descrição", true),
+    L("O que faz, em uma frase", T("frase_negocio"), "resumir a descrição em uma frase de até 20 palavras", false),
+    L("Cidade e estado", T("cidade_uf"), "", true),
+    L("Área de atendimento", T("area_atendimento"), "não citar abrangência no site", false),
+    L("Atende em endereço físico", T("ponto_fisico"), "tratar como não", false),
+    L("Tempo de atuação", T("tempo_atuacao"), "não citar tempo de mercado", false),
+    L("Descrição completa (palavras do cliente)", T("descricao") || (antigo ? T("descricao") : null), "", true),
+    L("História e pessoas por trás", T("historia"), "não criar página ou seção de história, apenas um parágrafo curto de apresentação baseado na descrição", false)
+  ]);
+
+  /* 5. público */
+  sec("5. Público e diferenciais", [
+    L("Cliente ideal", T("publico_ideal"), "inferir um público geral do segmento e da cidade, sem citar faixa etária", true),
+    L("Problema ou desejo que o cliente tem", T("problema_resolvido"), "deduzir da descrição", false),
+    L("Diferenciais (usar exatamente estes, nesta ordem)", [T("diferencial_1"), T("diferencial_2"), T("diferencial_3")].filter(Boolean).map((d, i) => `\n  ${i + 1}. ${d}`).join("") || null, "não destacar diferenciais; focar nos serviços", true),
+    L("Concorrentes (para se diferenciar, nunca para citar no site)", T("concorrentes"), "", false)
+  ]);
+
+  /* 6. objetivo */
+  const ap = r.acao_principal, as = r.acao_secundaria;
+  sec("6. Objetivo do site e ações", [
+    L("Ação principal", rot("acao_principal") ? `${rot("acao_principal")}, e o botão ${implAcao(ap)}` : null, "usar contato por WhatsApp", true),
+    L("Texto do botão principal", T("acao_principal_texto"), "escolher um verbo direto e curto de até 4 palavras", false),
+    as && as !== "nenhuma" ? `- Ação secundária: ${rot("acao_secundaria")}, e o botão ${implAcao(as)}` : `- Ação secundária: nenhuma`,
+    `- O botão principal aparece no topo, no meio e no fim da página, sempre com o mesmo texto e o mesmo destino.`,
+    L("Como o cliente mede o sucesso", T("meta_sucesso"), "", false)
+  ]);
+
+  /* 7. ofertas / loja */
+  if(tier === "sob_medida"){
+    sec("7. Loja", [
+      L("Quantidade de produtos no começo", T("loja_n_produtos"), "perguntar na reunião", true),
+      L("Categorias", T("loja_categorias"), "perguntar na reunião", false),
+      L("Variações de produto (tamanho, cor)", T("loja_variacoes"), "perguntar na reunião", true),
+      L("Formas de pagamento", T("loja_pagamentos"), "perguntar na reunião", true),
+      L("Plataforma de pagamento que já usa", T("loja_gateway"), "recomendar no PLATAFORMA.md", false),
+      L("Entrega", T("loja_frete"), "perguntar na reunião", true),
+      L("Controle de estoque hoje", T("loja_estoque"), "perguntar na reunião", false),
+      L("Emite nota fiscal", T("loja_nf"), "perguntar na reunião", false),
+      L("Política de trocas e devoluções", T("loja_trocas"), "perguntar na reunião (a loja precisa publicar uma)", true),
+      L("Plataforma de loja preferida", T("loja_plataforma"), "recomendar no PLATAFORMA.md", false)
+    ]);
+  }else{
+    const itens = Array.isArray(r.oferta_itens) ? r.oferta_itens : [];
+    sec(tier === "presenca_rapida" ? "7. Oferta da página" : "7. Serviços ou produtos", itens.length
+      ? itens.map((it, i) => `${i + 1}. ${it.nome || "(sem nome)"}\n   Descrição: ${it.descricao || "NÃO INFORMADO"}\n   Preço: ${it.preco || "NÃO INFORMADO"}`)
+      : [`- NÃO INFORMADO → derive da descrição do negócio, sem inventar itens`]);
+  }
+
+  /* 8. estrutura */
+  if(tier === "presenca_rapida"){
+    sec("8. Estrutura da página única", [
+      `Ordem das seções, de cima para baixo:`,
+      `1. Topo: nome do negócio, frase principal, botão principal.`,
+      `2. Oferta (item 7).`,
+      ...(rot("secoes") ? [`3. Seções escolhidas pelo cliente: ${rot("secoes")}.`] : [`3. Nenhuma seção extra foi escolhida → inclua apenas um parágrafo curto de apresentação do negócio.`]),
+      `4. Contato: dados do item 10 e botão principal.`,
+      `Não crie nenhuma seção além das listadas.`,
+      L("Pedido específico do cliente", T("estrutura_obs"), "", false)
+    ]);
+  }else if(tier === "site_completo"){
+    const pags = (Array.isArray(r.paginas) ? r.paginas : []).filter(p => p !== "outra");
+    const nomesPag = { sobre:"Sobre", servicos:"Serviços ou produtos", galeria:"Galeria de fotos", depoimentos:"Depoimentos", faq:"Perguntas frequentes", contato:"Contato" };
+    const lista = ["Início", ...pags.map(p => nomesPag[p] || p), ...(r.paginas_outra ? [r.paginas_outra] : [])];
+    sec("8. Páginas do site", [
+      `Crie exatamente estas ${lista.length} páginas, nesta ordem no menu: ${lista.join(", ")}.`,
+      lista.length > 5 ? `ATENÇÃO: são mais de 5 páginas, e o plano permite até 5. Junte as páginas menos importantes na página inicial e registre em DECISOES.md.` : `Não crie nenhuma página além das listadas.`,
+      `O contato (WhatsApp, telefone, endereço) aparece no rodapé de todas as páginas, mesmo que a página Contato não tenha sido escolhida.`,
+      `Para páginas sem conteúdo específico neste briefing (por exemplo a página "outra"), escreva apenas com fatos do briefing. Se não houver fatos suficientes para uma página inteira, faça uma página curta e registre em DECISOES.md.`,
+      L("Pedido específico do cliente", T("estrutura_obs"), "", false)
+    ]);
+  }
+
+  /* 9. provas */
+  if(tier !== "sob_medida"){
+    const dep = Array.isArray(r.depoimentos) ? r.depoimentos : [];
+    sec("9. Provas e perguntas frequentes", [
+      dep.length ? `- Depoimentos (publicar exatamente como estão, sem editar o sentido):\n` + dep.map((d, i) => `  ${i + 1}. "${d.texto}" (${d.nome}${d.detalhe ? ", " + d.detalhe : ""})`).join("\n") : `- Depoimentos: NÃO INFORMADO → não criar seção de depoimentos`,
+      L("Números", T("numeros"), "não exibir números", false),
+      L("Certificações, prêmios, parcerias", T("selos"), "não exibir selos", false),
+      L("Perguntas que os clientes fazem", T("duvidas_frequentes"), "não criar seção de perguntas frequentes, a menos que o cliente a tenha escolhido; neste caso, crie 3 perguntas com respostas curtas baseadas apenas nos fatos deste briefing", false),
+      `- Para as perguntas listadas sem resposta: redija respostas curtas e neutras usando SOMENTE os fatos deste briefing. Se a resposta exigir um fato que não foi informado, não inclua a pergunta e registre em DECISOES.md.`
+    ]);
+  }
+
+  /* 10. contato */
+  const redes = [
+    r.instagram ? `Instagram: ${urlRede(r.instagram, "https://instagram.com/")}` : null,
+    r.facebook ? `Facebook: ${urlRede(r.facebook, "https://facebook.com/")}` : null,
+    r.tiktok ? `TikTok: ${urlRede(r.tiktok, "https://www.tiktok.com/@")}` : null,
+    r.linkedin ? `LinkedIn: ${urlRede(r.linkedin)}` : null,
+    r.youtube ? `YouTube: ${urlRede(r.youtube)}` : null,
+    r.outras_redes ? `Outro: ${r.outras_redes}` : null
+  ].filter(Boolean);
+  sec("10. Contato público e redes (publicar exatamente assim)", [
+    L("WhatsApp do negócio", r.whatsapp_negocio ? `${r.whatsapp_negocio}, link ${wa(`Olá! Vim pelo site da ${nome}.`)}` : null, "", true),
+    L("Telefone", T("telefone"), "não exibir", false),
+    L("E-mail público", T("email_publico"), "não exibir", false),
+    r.ponto_fisico === "sim" ? L("Endereço", T("endereco"), "", true) : `- Endereço: não se aplica (sem ponto físico). Não exiba endereço nem mapa.`,
+    r.ponto_fisico === "sim" ? L("Link do Google Maps", T("maps_link"), "montar o link de busca do Maps pelo endereço", false) : null,
+    L("Horário de atendimento", T("horario"), "não exibir horário", true),
+    redes.length ? `- Redes sociais (exibir só estas, com ícone e link):\n  ${redes.join("\n  ")}` : `- Redes sociais: NÃO INFORMADO → não exibir ícones de redes`,
+    r.feed_instagram ? `- Mostrar fotos do Instagram no site: ${Dec("feed_instagram", "mostrar")}${r.feed_instagram !== "nao" ? ". Sem script de terceiros: faça uma grade de fotos enviadas pelo cliente, cada uma com link para o perfil, e registre em DECISOES.md que o feed automático depende de integração" : ""}` : null
+  ]);
+
+  /* 11. visual */
+  const refs = [r.ref_1, r.ref_2, r.ref_3].filter(Boolean);
+  sec("11. Direção visual", [
+    L("Estilo escolhido", r.estilo ? ESTILOS[r.estilo] || rot("estilo") : null, "escolher o estilo mais adequado ao segmento e registrar em DECISOES.md", true),
+    L("Cores", r.cores_origem === "definidas" ? `usar as cores informadas pelo cliente: ${r.cores_definidas || "NÃO INFORMADO"}` : r.cores_origem === "logo" ? "extrair da logo do cliente (se a logo ainda não chegou, usar paleta provisória do estilo e registrar em DECISOES.md)" : r.cores_origem === "decidir" ? "o cliente deixou a escolha com a Brasa: criar paleta de 4 a 6 cores coerente com o estilo e o segmento" : null, "criar paleta coerente com o estilo", false),
+    L("Cores a evitar", T("cores_evitar"), "", false),
+    refs.length ? `- Sites de referência:\n  ${refs.join("\n  ")}\n  O que o cliente gosta neles: ${T("ref_gostou") || "NÃO INFORMADO"}\n  Use como inspiração de organização e clima, nunca copie layout, textos, imagens ou marca.` : `- Sites de referência: NÃO INFORMADO`,
+    L("O que o cliente NÃO quer (obrigatório respeitar)", T("nao_quero"), "", false),
+    `- Se algo que o cliente pediu ou proibiu conflitar com o estilo escolhido, o pedido do cliente vence. Registre o ajuste em DECISOES.md.`,
+    `- Contraste mínimo AA, tamanho de texto de corpo de pelo menos 16px, foco visível por teclado, respeitar prefers-reduced-motion. No máximo UM momento de movimento deliberado na página.`
+  ]);
+
+  /* 12. material */
+  const logoTxt = r.tem_logo === "sim" ? "o cliente TEM logo e vai enviar" : r.tem_logo === "refazer" ? "o cliente tem logo mas quer REFAZER" : r.tem_logo === "nao" ? "o cliente NÃO tem logo" : null;
+  sec("12. Material do cliente", [
+    L("Fotos", rot("tem_fotos"), "usar banco de imagens do segmento", true),
+    r.link_fotos ? `- Pasta de fotos: ${r.link_fotos}` : null,
+    L("Logo", logoTxt, "criar versão tipográfica com o nome do negócio", true),
+    r.link_logo ? `- Arquivo da logo: ${r.link_logo}` : null,
+    r.nome_na_logo ? `- Grafia do nome na logo tipográfica: ${r.nome_na_logo}` : null,
+    (r.tem_logo === "nao" || r.tem_logo === "refazer") ? `- Logo tipográfica: criar em SVG, usando o nome do negócio com a fonte de títulos do estilo escolhido, sem símbolo ou ícone inventado.` : null,
+    L("Manual de marca ou fontes", T("manual_marca"), "", false),
+    L("Vídeo para o site", T("video_link"), "não incluir vídeo", false),
+    `- Fotos e logo do cliente chegam depois, pelo WhatsApp. Deixe os locais prontos em /assets/ com nomes fixos (logo.svg ou logo.png, foto-01.jpg, foto-02.jpg...) e deixe o site funcionando e bonito com os substitutos até lá. Liste em DECISOES.md quais arquivos faltam.`
+  ]);
+
+  /* 13. texto */
+  const cliEscreve = r.quem_escreve === "cliente";
+  sec("13. Textos e tom", [
+    L("Quem escreve os textos", cliEscreve ? "o cliente. Use os textos abaixo como base e corrija apenas ortografia, pontuação e organização nas seções. Não mude o sentido nem acrescente fatos." : r.quem_escreve === "brasa" ? "a Brasa. Escreva o texto final de todo o site, seguindo o guia de voz." : null, "escrever o texto final", true),
+    cliEscreve ? L("Textos do cliente", T("textos_cliente"), "o cliente ainda vai enviar os textos pelo WhatsApp: escreva um rascunho com base neste briefing e marque no DECISOES.md como provisório", true) : null,
+    L("Jeito de falar do negócio", Dec("tom", "profissional e próximo"), "profissional e próximo", false),
+    L("Slogan", T("slogan"), "não usar slogan", false),
+    L("Palavras e expressões que sempre devem aparecer", T("palavras_usar"), "", false),
+    L("Palavras e expressões que NÃO podem aparecer", T("palavras_evitar"), "", false)
+  ]);
+
+  /* 14. recursos */
+  const emailForm = T("email_formulario");
+  sec("14. Recursos", [
+    L("Botão de WhatsApp fixo no canto da tela", Dec("botao_whatsapp", "incluir"), "incluir", false),
+    r.formulario_contato === "sim"
+      ? `- Formulário de contato: SIM. Campos: nome, WhatsApp, mensagem. Destino dos envios: ${emailForm || "NÃO INFORMADO"}. Envie via POST para um endereço definido na constante FORM_ENDPOINT no topo do script, deixe-a vazia e registre em DECISOES.md que a Brasa precisa conectar o envio ao e-mail de destino. Enquanto vazia, o formulário mostra uma mensagem clara de que o envio ainda não está ativo e oferece o botão de WhatsApp como alternativa.`
+      : `- Formulário de contato: NÃO. Não inclua formulário.`,
+    r.ponto_fisico === "sim" ? L("Mapa com o endereço", Dec("mapa", "incluir um mapa incorporado do Google Maps"), "incluir um mapa incorporado do Google Maps", false) : null,
+    L("Razão social e CNPJ no rodapé", [T("razao_social"), T("cnpj") ? `CNPJ ${T("cnpj")}` : null].filter(Boolean).join(", ") || null, "rodapé apenas com o nome do negócio e o ano", false),
+    L("Códigos de acompanhamento", T("analytics"), "não incluir nenhum script de terceiros", false),
+    `- Não adicione script de terceiros além dos informados acima. O mapa incorporado e o link de WhatsApp contam como permitidos quando pedidos.`
+  ]);
+
+  /* 15. publicação */
+  sec("15. Domínio, publicação e prazo", [
+    L("Domínio", r.tem_dominio === "sim" ? `o cliente já tem: ${r.dominio_desejado || "NÃO INFORMADO"}` : r.tem_dominio ? `o cliente ${r.tem_dominio === "nao" ? "NÃO tem e precisa de ajuda para registrar" : "não sabe dizer"}${r.dominio_desejado ? `. Gostaria de: ${r.dominio_desejado}` : ""}` : null, "publicar primeiro no endereço provisório da Vercel", true),
+    L("Site ou página atual", T("site_atual"), "", false),
+    L("Data desejada para estar no ar", r.data_desejada ? `${dataBR(r.data_desejada)}${r.motivo_prazo ? ` (${r.motivo_prazo})` : ""}` : null, "seguir o prazo do plano", false),
+    L("Quem aprova", r.aprovador === "varios" ? `o cliente e mais: ${r.aprovador_nomes || "NÃO INFORMADO"}` : r.aprovador === "eu" ? "só o cliente" : null, "só o cliente", false),
+    `- Entregue pronto para publicação como site estático na Vercel.`
+  ]);
+
+  /* 16. observações */
+  sec("16. Observações do cliente (leia e respeite)", [T("observacoes") || `- Nenhuma.`]);
+
+  /* 17. pendências */
+  sec("17. Pendências para a equipe confirmar com o cliente", pend.length ? pend.map(p => `- ${p}`) : [`- Nenhuma. Todas as informações essenciais foram informadas.`]);
+
+  /* 18. entrega */
+  const ehLoja = tier === "sob_medida";
+  sec("18. Como entregar", ehLoja ? [
+    `- Arquivos: ESCOPO.md, PLATAFORMA.md, PERGUNTAS.md e PROTOTIPO/ (index.html, css, assets).`,
+    `- O protótipo é estático, responsivo de 360px a 1440px, e segue a seção 11.`
+  ] : [
+    `- Arquivos na raiz da pasta de entrega: index.html${tier === "site_completo" ? " e uma página .html para cada página do site" : ""}, pasta css/, js/, assets/, favicon (SVG), og.png (1200x630), sitemap.xml, robots.txt e DECISOES.md.`,
+    `- DECISOES.md: liste cada regra padrão aplicada, cada arquivo do cliente que falta e cada pendência do item 17.`,
+    `- Em cada página: title de até 60 caracteres, meta description de até 155, lang="pt-BR", Open Graph, canonical, um único h1 e hierarquia de títulos correta.`,
+    r.ponto_fisico === "sim" ? `- Inclua dados estruturados JSON-LD do tipo LocalBusiness usando SOMENTE os dados do item 10.` : `- Sem endereço físico: não inclua dados estruturados de LocalBusiness.`,
+    `- Sem frameworks pesados: HTML, CSS e o mínimo de JavaScript. Fontes do Google Fonts com display=swap. Imagens otimizadas, no máximo 200 KB cada, em JPG ou WebP.`,
+    `- Responsivo de 360px a 1440px, sem rolagem horizontal. Menu que funciona no celular.`
+  ]);
+
+  /* 19. checklist */
+  sec("19. Checklist de aceite (confira tudo antes de entregar)", [
+    `[ ] Nenhum dado inventado: cada fato do site existe neste briefing.`,
+    `[ ] ${tier === "site_completo" ? "O número de páginas é igual ao do item 8 e não passa de 5." : tier === "presenca_rapida" ? "É uma página única e só tem as seções do item 8." : "Os quatro arquivos da seção 18 foram criados."}`,
+    `[ ] Todos os botões e links têm destino correto. O WhatsApp abre a conversa com o número do item 10.`,
+    `[ ] Telefone, endereço, horário e redes batem letra por letra com o item 10.`,
+    `[ ] Nenhuma menção a IA ou automação. Nenhum travessão em-dash nos textos. Nenhum texto de preenchimento.`,
+    `[ ] O que o cliente pediu para NÃO aparecer não aparece (itens 11, 13 e 16).`,
+    `[ ] Visual conferido em 360px, 768px e 1280px, sem rolagem horizontal e sem texto cortado.`,
+    `[ ] DECISOES.md lista todas as regras padrão aplicadas e todas as pendências.`
+  ]);
+
+  const cabecalho = `# BRIEFING DE PRODUÇÃO: ${nome}\nPedido ${idCurto} · Plano ${plano}${antigo ? "\nAVISO: este pedido foi feito no formulário antigo, com poucas perguntas. Muitas informações virão como NÃO INFORMADO. Aplique as regras padrão e liste tudo em DECISOES.md." : ""}`;
+  return { texto: cabecalho + "\n\n" + S.join("\n\n") + "\n", pendencias: pend };
+}
+
+/* prompt antigo, só dos textos em JSON */
+function montarPromptTextos(pedido, r){
+  r = r || {};
+  const rot = (k) => { const x = r.rotulos && r.rotulos[k]; const v = x !== undefined ? x : r[k]; return Array.isArray(v) ? v.join(", ") : v; };
+  const ni = (v) => txt(v) || "não informado";
   return `Você é o redator do Brasa Digital. Siga estritamente o guia de voz de marca abaixo.
 
 ${GUIA_DE_VOZ}
@@ -93,18 +402,22 @@ ${GUIA_DE_VOZ}
 Gere o conteúdo do site do cliente abaixo, devolvendo a resposta em JSON, com uma chave por seção, neste formato:
 {"hero": {"headline": "", "subheadline": ""}, "sobre": {"titulo": "", "texto": ""}, "servicos": {"titulo": "", "itens": [{"nome": "", "descricao": ""}]}, "contato": {"whatsapp": "", "endereco": "", "horario": ""}}
 
+Use somente fatos informados. Não invente números, depoimentos ou preços.
+
 Dados do cliente:
 - Plano: ${NOMES_TIER[pedido.tier] || pedido.tier}
-- Segmento do negócio: ${respostas.segmento || "não informado"}
-- Nome do negócio: ${respostas.nome_negocio || "não informado"}
-- Descrição fornecida pelo cliente: ${respostas.descricao || "não informado"}
-- Estilo visual escolhido (template): ${respostas.estilo || "não escolhido"}
-- Quem escreve os textos: ${respostas.quem_escreve === "cliente" ? "o próprio cliente vai revisar e ajustar, gere um rascunho para referência" : "a IA deve escrever o texto final"}
-- WhatsApp do negócio (exibir no site): ${respostas.whatsapp_negocio || "não informado"}
-- Endereço: ${respostas.endereco || "não informado"}
-- Horário de funcionamento: ${respostas.horario || "não informado"}
-- Tem fotos próprias: ${respostas.tem_fotos === "sim" ? "sim, cliente vai enviar" : "não, usar banco de imagens do segmento"}
-- Tem logo: ${respostas.tem_logo === "sim" ? "sim, cliente vai enviar" : respostas.tem_logo === "refazer" ? "tem, mas quer refazer" : "não, gerar versão tipográfica"}
+- Segmento do negócio: ${ni(rot("segmento_outro") || rot("segmento"))}
+- Nome do negócio: ${ni(r.nome_negocio)}
+- O que faz, em uma frase: ${ni(r.frase_negocio)}
+- Descrição fornecida pelo cliente: ${ni(r.descricao)}
+- Público: ${ni(r.publico_ideal)}
+- Diferenciais: ${[r.diferencial_1, r.diferencial_2, r.diferencial_3].filter(Boolean).join("; ") || "não informado"}
+- Jeito de falar: ${ni(rot("tom"))}
+- Estilo visual escolhido (template): ${ni(rot("estilo"))}
+- Quem escreve os textos: ${r.quem_escreve === "cliente" ? "o próprio cliente vai revisar e ajustar, gere um rascunho para referência" : "escreva o texto final"}
+- WhatsApp do negócio (exibir no site): ${ni(r.whatsapp_negocio)}
+- Endereço: ${ni(r.endereco)}
+- Horário de funcionamento: ${ni(r.horario)}
 `;
 }
 
@@ -137,58 +450,66 @@ function mostrarPainel(){
 
 async function carregarPedidos(){
   const lista = document.getElementById("listaPedidos");
-  lista.innerHTML = "Carregando...";
+  lista.textContent = "Carregando...";
 
   const { data: pedidos, error } = await sb
     .from("pedidos")
     .select("*, clientes(nome_negocio, contato_whatsapp, contato_email), formulario_respostas(respostas)")
     .order("criado_em", { ascending: false });
 
-  if(error){ lista.innerHTML = "Não consegui carregar os pedidos."; console.error(error); return; }
+  if(error){ lista.textContent = "Não consegui carregar os pedidos."; console.error(error); return; }
   if(!pedidos.length){ lista.innerHTML = '<div class="vazio">Nenhum pedido ainda.</div>'; return; }
 
   lista.innerHTML = "";
   pedidos.forEach(pedido => {
     const respostas = pedido.formulario_respostas?.[0]?.respostas || {};
     const nomeNegocio = pedido.clientes?.nome_negocio || respostas.nome_negocio || "sem nome";
+    const gerado = montarPromptSite(pedido, respostas, pedido.clientes);
+    const nPend = gerado.pendencias.length;
 
     const el = document.createElement("div");
     el.className = "pedido";
     el.innerHTML = `
       <div class="pedido-cabecalho">
         <div>
-          <div class="pedido-nome">${nomeNegocio}</div>
-          <div class="pedido-meta">${NOMES_TIER[pedido.tier] || pedido.tier} · R$ ${pedido.preco} · ${pedido.clientes?.contato_whatsapp || ""} · <span class="mono">${new Date(pedido.criado_em).toLocaleString('pt-BR')}</span></div>
+          <div class="pedido-nome">${esc(nomeNegocio)}</div>
+          <div class="pedido-meta">${esc(NOMES_TIER[pedido.tier] || pedido.tier)} · R$ ${esc(pedido.preco)} · ${esc(pedido.clientes?.contato_whatsapp || "")} · <span class="mono">${esc(new Date(pedido.criado_em).toLocaleString('pt-BR'))}</span></div>
+          <div class="pedido-meta" style="margin-top:4px;">${respostas.versao_formulario ? "Formulário completo" : "Formulário antigo"} · ${nPend ? `<strong style="color:#B3290C;">${nPend} pendência${nPend > 1 ? "s" : ""} para confirmar com o cliente</strong>` : "sem pendências"}</div>
         </div>
-        <span class="status-chip">${NOMES_STATUS[pedido.status] || pedido.status}</span>
+        <span class="status-chip">${esc(NOMES_STATUS[pedido.status] || pedido.status)}</span>
       </div>
       <div class="acoes">
-        <select data-pedido-id="${pedido.id}" class="seletor-status">
-          ${Object.entries(NOMES_STATUS).map(([valor, rotulo]) => `<option value="${valor}" ${valor === pedido.status ? "selected" : ""}>${rotulo}</option>`).join("")}
+        <select data-pedido-id="${esc(pedido.id)}" class="seletor-status" aria-label="Status do pedido">
+          ${Object.entries(NOMES_STATUS).map(([valor, rotulo]) => `<option value="${esc(valor)}" ${valor === pedido.status ? "selected" : ""}>${esc(rotulo)}</option>`).join("")}
         </select>
-        <button class="btn btn-secundario btn-prompt" data-id="${pedido.id}">Ver / copiar prompt</button>
+        <button class="btn btn-prompt-site" type="button">Prompt do site completo</button>
+        <button class="btn btn-secundario btn-prompt-texto" type="button">Só os textos (JSON)</button>
+        <span class="aviso copiado" role="status" aria-live="polite"></span>
       </div>
-      <textarea class="prompt mono" id="prompt-${pedido.id}" readonly></textarea>
+      <textarea class="prompt mono" readonly aria-label="Prompt gerado"></textarea>
     `;
     lista.appendChild(el);
 
-    el.querySelector(".seletor-status").addEventListener("change", async (e) => {
-      const novoStatus = e.target.value;
+    const area = el.querySelector("textarea.prompt");
+    const aviso = el.querySelector(".copiado");
+
+    el.querySelector(".seletor-status").addEventListener("change", async (ev) => {
+      const novoStatus = ev.target.value;
       await sb.from("pedidos").update({ status: novoStatus }).eq("id", pedido.id);
       el.querySelector(".status-chip").textContent = NOMES_STATUS[novoStatus];
     });
 
-    el.querySelector(".btn-prompt").addEventListener("click", async () => {
-      const area = document.getElementById(`prompt-${pedido.id}`);
-      const promptTexto = montarPrompt(pedido, respostas);
-      area.value = promptTexto;
-      area.style.display = area.style.display === "none" ? "block" : "none";
-      if(area.style.display === "block"){
-        area.select();
-        try{ await navigator.clipboard.writeText(promptTexto); }catch(e){}
-        await sb.from("pedidos").update({ prompt_gerado: promptTexto }).eq("id", pedido.id);
-      }
-    });
+    async function mostrar(texto, salvar){
+      area.value = texto;
+      area.style.display = "block";
+      area.select();
+      let copiou = false;
+      try{ await navigator.clipboard.writeText(texto); copiou = true; }catch(_){}
+      aviso.textContent = copiou ? "Copiado para a área de transferência." : "Selecione o texto e copie (Ctrl+C).";
+      if(salvar) await sb.from("pedidos").update({ prompt_gerado: texto }).eq("id", pedido.id);
+    }
+    el.querySelector(".btn-prompt-site").addEventListener("click", () => mostrar(montarPromptSite(pedido, respostas, pedido.clientes).texto, true));
+    el.querySelector(".btn-prompt-texto").addEventListener("click", () => mostrar(montarPromptTextos(pedido, respostas), false));
   });
 }
 
